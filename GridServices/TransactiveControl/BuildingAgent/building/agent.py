@@ -61,20 +61,20 @@ from volttron.platform.agent.base_market_agent.point import Point
 from volttron.platform.agent.base_market_agent.buy_sell import BUYER
 from volttron.platform.agent.base_market_agent.buy_sell import SELLER
 
-from TNT_Version3.PyCode.helpers import *
-from TNT_Version3.PyCode.measurement_type import MeasurementType
-from TNT_Version3.PyCode.measurement_unit import MeasurementUnit
-from TNT_Version3.PyCode.meter_point import MeterPoint
-from TNT_Version3.PyCode.market_state import MarketState
-from TNT_Version3.PyCode.TransactiveNode import TransactiveNode
-from TNT_Version3.PyCode.neighbor_model import Neighbor
-from TNT_Version3.PyCode.temperature_forecast_model import TemperatureForecastModel
-from TNT_Version3.PyCode.vertex import Vertex
-from TNT_Version3.PyCode.timer import Timer
-from TNT_Version3.PyCode.tcc_model import TccModel
-from TNT_Version3.PyCode.dummy_tcc_model import DummyTccModel
-from TNT_Version3.PyCode.day_ahead_auction import DayAheadAuction
-from TNT_Version3.PyCode.direction import Direction
+from ...TNT_Version3.PyCode.helpers import *
+from ...TNT_Version3.PyCode.measurement_type import MeasurementType
+from ...TNT_Version3.PyCode.measurement_unit import MeasurementUnit
+from ...TNT_Version3.PyCode.meter_point import MeterPoint
+from ...TNT_Version3.PyCode.market_state import MarketState
+from ...TNT_Version3.PyCode.TransactiveNode import TransactiveNode
+from ...TNT_Version3.PyCode.neighbor_model import Neighbor
+from ...TNT_Version3.PyCode.temperature_forecast_model import TemperatureForecastModel
+from ...TNT_Version3.PyCode.vertex import Vertex
+from ...TNT_Version3.PyCode.timer import Timer
+from ...TNT_Version3.PyCode.tcc_model import TccModel
+from ...TNT_Version3.PyCode.dummy_tcc_model import DummyTccModel
+from ...TNT_Version3.PyCode.day_ahead_auction import DayAheadAuction
+from ...TNT_Version3.PyCode.direction import Direction
 
 utils.setup_logging()
 _log = logging.getLogger(__name__)
@@ -964,7 +964,7 @@ class BuildingAgent(MarketAgent, TransactiveNode):
             all_curves_exist = all([False if q is None else True for q in self.building_demand_curves])
             if not all_curves_exist:
                 _log.error("Demand curves: {}".format(self.building_demand_curves))
-                raise "Mix market has all quantities but not all demand curves"
+                raise Exception("Mix market has all quantities but not all demand curves")
 
             # Update demand and balance market
             self.mix_market_running = False
