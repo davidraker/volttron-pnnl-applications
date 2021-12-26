@@ -71,7 +71,8 @@ class MeterPoint(object):
 
         # These following properties are dynamically assigned and should not be assigned during meter configuration:
         self.current_hour_measurements = []
-        self.current_measurement = None
+        self.filtered_measurement = None  # Average or some other aggregate metric
+        self.current_measurement = None  # Last actual value.
         self.lastUpdate = None
 
     # TODO: Consider how/whether this use of datetime.utcnow() affects simulations.
@@ -79,11 +80,12 @@ class MeterPoint(object):
         self.current_hour_measurements.append(value)
         self.lastUpdate = last_update
 
-    def update_avg(self):
+    def filter_measurements(self):
+        # TODO: Make this interval agnostic. Maybe put pass in base class.
         if len(self.current_hour_measurements) > 30:
-            self.current_measurement = sum(self.current_hour_measurements) / len(self.current_hour_measurements)
+            self.filtered_measurement = sum(self.current_hour_measurements) / len(self.current_hour_measurements)
             self.current_hour_measurements = []
-        return self.current_measurement
+        return self.filtered_measurement
 
     def read_meter(self, obj):
         # Read the meter point at scheduled intervals
