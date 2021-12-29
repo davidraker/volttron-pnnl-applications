@@ -42,6 +42,8 @@ under Contract DE-AC05-76RL01830
 """
 
 import logging
+import weakref
+
 from volttron.platform.agent import utils
 
 from .vertex import Vertex
@@ -92,23 +94,27 @@ class LocalAsset(object):
                  # their powers.
                  schedule_calculated=False,
                  scheduling_horizon=timedelta(hours=24),
-                 subclass=None):
+                 subclass=None,
+                 transactive_node=None):
 
         super(LocalAsset, self).__init__()     # Inherit from any parent class
 
+        if transactive_node:
+            self.tn = weakref.proxy(transactive_node)
         # These following static properties may be assigned as parameters:
-        self.costParameters = cost_parameters       # [float, float, float] Coefficients of quadratic cost function
-        self.defaultPower = default_power           # [avg.kW, signed] Assignable default power value(s)
-        self.description = description              # [text]
-        self.engagementCost = engagement_cost       # {engagement, [$]; hold, [$]; disengagement, [$]} Transition costs
-        self.location = location                    # [text]
-        self.maximumPower = maximum_power           # [avg.kW, signed] Asset's physical "hard" constraint
-        self.minimumPower = minimum_power           # [avg.kW, signed] Asset's physical "hard" constraint
-        self.name = name                            # [text]
+        self.costParameters = (float(cp) for cp in cost_parameters)  # [float, float, float] Coefficients of quadratic cost function
+        self.defaultPower = float(default_power)           # [avg.kW, signed] Assignable default power value(s)
+        self.description = str(description)              # [text]
+        self.engagementCost = (float(ec) for ec in engagement_cost)  # {engagement, [$]; hold, [$]; disengagement, [$]} Transition costs
+        self.location = str(location)                    # [text]
+        self.maximumPower = float(maximum_power)           # [avg.kW, signed] Asset's physical "hard" constraint
+        self.minimumPower = float(minimum_power)           # [avg.kW, signed] Asset's physical "hard" constraint
+        self.name = str(name)                            # [text]
         # 200520DJH - The following Boolean property is added to give complex assets like TCC time to schedule
         # their powers.
-        self.scheduleCalculated = schedule_calculated  # Flag set True after asset has scheduled power
-        self.schedulingHorizon = scheduling_horizon  # [time duration] Future that price and energy shift are relevant
+        self.scheduleCalculated = validate_bool(schedule_calculated, 'schedule_calculated')  # Flag set True after asset has scheduled power
+        self.schedulingHorizon = scheduling_horizon if isinstance(scheduling_horizon, timedelta)\
+            else timedelta(seconds=scheduling_horizon) # [time duration] Future that price and energy shift are relevant
         self.subclass = subclass                    # Future, unused
 
         # These are static lists of objects that an asset must manage: These should be configured by an implementer.

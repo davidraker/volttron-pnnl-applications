@@ -52,16 +52,16 @@ utils.setup_logging()
 _log = logging.getLogger(__name__)
 
 
-class SolarPvResource(LocalAsset, object):
+class SolarPvResource(LocalAsset):
     # SolarPvResourceModel Subclass for renewable solar PV generation The Solar PV resource is treated here as a must-
     # take resource. This is unlike dispatchable resources in this regard. Production may be predicted. The main
     # features of this model are (1) the introduction of property cloudFactor, an IntervalValue, that allows us to
     # reduce the expected solar generation according to cloud cover, and (2) method solar_generation() that creates the
     # envelope, best-case, power production for the resource as a function of time-of-day.
 
-    def __init__(self):
-        super(SolarPvResource, self).__init__()
-        self.cloudFactor = 1.0
+    def __init__(self, cloud_factor=1.0, *args, **kwargs):
+        super(SolarPvResource, self).__init__(*args, **kwargs)
+        self.cloudFactor = float(cloud_factor)
 
     def schedule_power(self, market):
         # Estimate stochastic generation from a solar PV array as a function of time-of-day and a cloud-cover factor.

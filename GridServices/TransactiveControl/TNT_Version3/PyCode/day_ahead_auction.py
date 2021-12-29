@@ -50,8 +50,8 @@ from .data_manager import *
 
 class DayAheadAuction(Auction):
 
-    def __init__(self):
-        super(DayAheadAuction, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(DayAheadAuction, self).__init__(*args, **kwargs)
 
     def spawn_markets(self, this_transactive_node, new_market_clearing_time):
 

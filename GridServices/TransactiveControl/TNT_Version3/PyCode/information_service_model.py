@@ -42,8 +42,9 @@ under Contract DE-AC05-76RL01830
 """
 
 
-
-from datetime import timedelta
+import weakref
+from datetime import datetime, timedelta
+from dateutil import parser
 
 from .measurement_type import MeasurementType
 from .measurement_unit import MeasurementUnit
@@ -56,23 +57,47 @@ class InformationServiceModel(object):
     # An InformationServiceModel manages an InformationService and predicts or
     # interpolates the information it provides.
 
-    def __init__(self):
+    def __init__(self,
+                 address='',
+                 description='',
+                 information_type=MeasurementType.Unknown,
+                 information_units=MeasurementUnit.Unknown,
+                 license_key='',
+                 next_query_time=datetime.now(),
+                 service_expiration_date=datetime.now() + timedelta(days=10000),
+                 update_period=timedelta(hours=1),
+                 file='',
+                 name='',
+                 next_scheduled_update=datetime.now(),
+                 update_interval=timedelta(hours=1),
+                 transactive_node=None
+                 ):
+
+        if transactive_node:
+            self.tn = weakref.proxy(transactive_node)
         # InformationService
-        self.address = ''  # perhaps a web address storage
-        self.description = ''
-        self.informationType = MeasurementType.Unknown
-        self.informationUnits = MeasurementUnit.Unknown
-        self.license = ''
-        self.nextQueryTime = None  # datetime.empty
-        self.serviceExpirationDate = None  # datetime.empty
-        self.updatePeriod = timedelta(hours=1)  # [h]
+        self.address = str(address)  # perhaps a web address storage
+        self.description = str(description)
+        self.informationType = information_type if isinstance(information_type, MeasurementType)\
+            else MeasurementType[information_type]
+        self.informationUnits = information_units if isinstance(information_units, MeasurementUnit)\
+            else MeasurementUnit[information_units]
+        self.license = str(license_key)
+        self.nextQueryTime = next_query_time if isinstance(next_query_time, datetime)\
+            else parser.parse(next_query_time)  # datetime.empty
+        self.serviceExpirationDate = service_expiration_date if isinstance(service_expiration_date, datetime)\
+            else parser.parse(service_expiration_date)  # datetime.empty
+        self.updatePeriod = update_period if isinstance(update_period, timedelta)\
+            else timedelta(seconds=update_period) # [h]
 
         # InformationServiceModel properties
-        self.file = ''  # filename having entries for time intervals
-        self.name = ''
-        self.nextScheduledUpdate = None  # datetime.empty
+        self.file = str(file)  # filename having entries for time intervals
+        self.name = str(name)
+        self.nextScheduledUpdate = next_scheduled_update if isinstance(next_scheduled_update, datetime)\
+            else parser.parse(next_scheduled_update)  # datetime.empty
         self.predictedValues = []  # IntervalValue.empty
-        self.updateInterval = timedelta(hours=1)  # [h]
+        self.updateInterval = update_interval if isinstance(update_interval, timedelta)\
+            else timedelta(seconds=update_interval)  # [h]
 
     # This template is available to conduct the forecasting of useful information.
     # 200928DJH: Changing back to a conventional object method. I think Hung must have made this a class method to defer

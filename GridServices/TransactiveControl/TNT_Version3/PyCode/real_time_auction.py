@@ -55,8 +55,8 @@ _log = logging.getLogger(__name__)
 
 class RealTimeAuction(Auction):
 
-    def __init__(self):
-        super(RealTimeAuction, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(RealTimeAuction, self).__init__(*args, **kwargs)
 
     def spawn_markets(self, this_transactive_node=None, new_market_clearing_time=None):
         # In this case, the real-time auctions are spawned by the day-ahead markets. Therefore, the real-time markets

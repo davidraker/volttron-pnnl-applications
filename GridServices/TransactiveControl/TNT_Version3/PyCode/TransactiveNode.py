@@ -63,3 +63,19 @@ class TransactiveNode(object):
         self.meterPoints = []
         self.neighbors = []
 
+    def get_meter_points_by_name(self, meter_points):
+        meter_point_list = []
+        available_mps = [mp.name for mp in self.meterPoints]
+        for mp in meter_points:
+            if mp not in available_mps:
+                raise ValueError(f'Meter point {mp} is not available.')
+            else:
+                meter_point_list.append(self.meterPoints[available_mps.index(mp)])
+        return meter_point_list
+
+    def get_market_by_name(self, market_name):
+        available_markets = [mkt.name for mkt in self.markets]
+        if market_name not in available_markets:
+            raise ValueError(f'Market {market_name} is not available.')
+        else:
+            return self.markets[available_markets.index(market_name)]

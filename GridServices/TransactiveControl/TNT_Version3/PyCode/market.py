@@ -43,7 +43,9 @@ under Contract DE-AC05-76RL01830
 
 import gevent
 import logging
+import weakref
 from datetime import timedelta
+from dateutil import parser
 
 from volttron.platform.agent import utils
 
@@ -95,30 +97,47 @@ class Market(object):
                  next_market_clearing_time=None,
                  negotiation_lead_time=timedelta(hours=0),
                  prior_market_in_series=None,
-                 real_time_duration=15):
+                 real_time_duration=15,
+                 transactive_node=None):
 
+        if transactive_node:
+            self.tn = weakref.proxy(transactive_node)
         # These properties are relatively static and may be received as parameters:
-        self.activationLeadTime = activation_lead_time  # [timedelta] Time in market state "Active"
-        self.commitment = commitment  # [Boolean] If true, scheduled power & price are commitments
-        self.defaultPrice = default_price  # [$/kWh] Static default price assignment
-        self.deliveryLeadTime = delivery_lead_time  # [timedelta] Time in market state "DeliveryLead"
-        self.dualityGapThreshold = duality_gap_threshold  # [dimensionless]; 0.01 = 1%
-        self.futureHorizon = future_horizon  # Future functionality: future of price-discovery relevance
-        self.initialMarketState = initial_market_state  # [MarketState] New market's initial state
-        self.intervalDuration = interval_duration  # [timedelta] Duration of this market's time intervals
-        self.intervalsToClear = intervals_to_clear  # [int] Market intervals to be cleared by this market object
-        self.marketClearingInterval = market_clearing_interval  # [timedelta] Time between successive market clearings
-        self.marketClearingTime = market_clearing_time  # [datetime] Time that a market object clears
-        self.marketLeadTime = market_lead_time  # [timedelta] Time in market state "MarketLead"
-        self.marketOrder = market_order  # [pos. integer] Ordering of sequential markets  (Unused)
-        self.marketSeriesName = market_series_name  # Successive market series objects share this name root
-        self.marketToBeRefined = market_to_be_refined  # [Market] Pointer to market to be refined or corrected
-        self.marketType = market_type  # [MarketTypes] enumeration
-        self.method = Method.Interpolation  # Solution method {1: subgradient, 2: interpolation}
-        self.name = name  # This market object's name. Use market series name as root
-        self.negotiationLeadTime = negotiation_lead_time  # [timedelta] Time in market state "Negotiation"
-        self.nextMarketClearingTime = next_market_clearing_time  # [datetime] Time of next market object's clearing
-        self.priorMarketInSeries = prior_market_in_series  # [Market] Pointer to preceding market in this market series
+        self.activationLeadTime = activation_lead_time if isinstance(activation_lead_time, timedelta)\
+            else timedelta(seconds=activation_lead_time)  # [timedelta] Time in market state "Active"
+        self.commitment = validate_bool(commitment, 'commitment')  # [Boolean] If true, scheduled power & price are commitments
+        self.defaultPrice = float(default_price)  # [$/kWh] Static default price assignment
+        self.deliveryLeadTime = delivery_lead_time if isinstance(delivery_lead_time, timedelta)\
+            else timedelta(seconds=delivery_lead_time) # [timedelta] Time in market state "DeliveryLead"
+        self.dualityGapThreshold = float(duality_gap_threshold)  # [dimensionless]; 0.01 = 1%
+        self.futureHorizon = future_horizon if isinstance(future_horizon, timedelta)\
+            else timedelta(seconds=future_horizon)  # Future functionality: future of price-discovery relevance
+        self.initialMarketState = initial_market_state if isinstance(initial_market_state, MarketState)\
+            else MarketState[initial_market_state]  # [MarketState] New market's initial state
+        self.intervalDuration = interval_duration if isinstance(interval_duration, timedelta)\
+            else timedelta(seconds=interval_duration)  # [timedelta] Duration of this market's time intervals
+        self.intervalsToClear = int(intervals_to_clear)  # [int] Market intervals to be cleared by this market object
+        self.marketClearingInterval = market_clearing_interval if isinstance(market_clearing_interval, timedelta)\
+            else timedelta(seconds=market_clearing_interval)  # [timedelta] Time between successive market clearings
+        self.marketClearingTime = market_clearing_time if isinstance(market_clearing_time, datetime)\
+            else parser.parse(market_clearing_time)  # [datetime] Time that a market object clears
+        self.marketLeadTime = market_lead_time if isinstance(market_lead_time, timedelta)\
+            else timedelta(seconds=market_lead_time)  # [timedelta] Time in market state "MarketLead"
+        self.marketOrder = int(market_order)  # [pos. integer] Ordering of sequential markets  (Unused)
+        self.marketSeriesName = str(market_series_name)  # Successive market series objects share this name root
+        self.marketToBeRefined = weakref.proxy(market_to_be_refined) if isinstance(market_to_be_refined, Market)\
+            else weakref.proxy(self.tn.get_market_by_name(market_to_be_refined))  # [Market] Pointer to market to be refined or corrected
+        self.marketType = market_type if isinstance(market_type, MarketTypes)\
+            else MarketTypes[market_type] # [MarketTypes] enumeration
+        self.method = method if isinstance(method, Method)\
+            else Method[method]  # Solution method {1: subgradient, 2: interpolation}
+        self.name = str(name)  # This market object's name. Use market series name as root
+        self.negotiationLeadTime = negotiation_lead_time if isinstance(negotiation_lead_time, timedelta)\
+            else timedelta(seconds=negotiation_lead_time)  # [timedelta] Time in market state "Negotiation"
+        self.nextMarketClearingTime = next_market_clearing_time if isinstance(next_market_clearing_time, datetime)\
+            else parser.parse(next_market_clearing_time)  # [datetime] Time of next market object's clearing
+        self.priorMarketInSeries = weakref.proxy(prior_market_in_series) if isinstance(prior_market_in_series, Market)\
+            else weakref.proxy(self.tn.get_market_by_name(prior_market_in_series))  # [Market] Pointer to preceding market in this market series
 
         # These are dynamic properties that are assigned in code and should not be manually configured:
         self.activeVertices = []  # [IntervalValue]; values are [vertices]

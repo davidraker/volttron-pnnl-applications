@@ -108,11 +108,11 @@ class MeterPoint(object):
 
     def getDict(self):
         meter_point_dict = {
-        "description": self.description,
-        "measurementInterval": self.measurementInterval,
-        "measurementType": self.measurementType,
-        "measurementUnit": self.measurementUnit,
-        "meter_point_name": self.name,
-        "lastUpdates": self.lastUpdate
+            "description": self.description,
+            "measurementInterval": self.measurementInterval,
+            "measurementType": self.measurementType,
+            "measurementUnit": self.measurementUnit,
+            "meter_point_name": self.name,
+            "lastUpdates": self.lastUpdate
         }
         return meter_point_dict

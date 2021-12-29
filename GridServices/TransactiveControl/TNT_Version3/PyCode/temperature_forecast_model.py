@@ -63,7 +63,8 @@ _log = logging.getLogger(__name__)
 
 utils.setup_logging()
 
-class TemperatureForecastModel(InformationServiceModel, object):
+
+class TemperatureForecastModel(InformationServiceModel):
     """
     Predict hourly temperature (F)
     Use CSV as we don't have internet access for now. Thus keep the csv file as small as possible
@@ -88,7 +89,7 @@ class TemperatureForecastModel(InformationServiceModel, object):
         self.weather_data = []
         self.last_modified = None
         try:
-           self.localtz = dateutil.tz.tzlocal()
+            self.localtz = dateutil.tz.tzlocal()
         except:
             _log.warning("Problem automatically determining timezone! - Default to UTC.")
             self.localtz = "US/Pacific"

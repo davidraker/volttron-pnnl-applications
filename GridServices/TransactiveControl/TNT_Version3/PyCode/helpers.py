@@ -52,6 +52,12 @@ utils.setup_logging()
 _log = logging.getLogger(__name__)
 
 
+def validate_bool(value, name):
+    if not (isinstance(value, bool) or isinstance(value, int) or isinstance(value, float)):
+        raise ValueError(f'{name} must be bool, not {type(value)}')
+    return bool(value)
+
+
 def format_date(dt):
     return dt.strftime('%Y%m%d')
 

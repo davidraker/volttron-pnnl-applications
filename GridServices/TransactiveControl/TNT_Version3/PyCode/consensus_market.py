@@ -49,11 +49,12 @@ from .method import Method
 
 class ConsensusMarket(Market):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super(ConsensusMarket, self).__init__(
             market_series_name='Consensus_Market_Series',
             market_type=MarketTypes.consensus,
-            method=2
+            method=2,
+            *args, **kwargs
         )
 
     def while_in_negotiation(self, my_transactive_node):

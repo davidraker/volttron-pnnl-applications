@@ -46,6 +46,7 @@ under Contract DE-AC05-76RL01830
 
 import logging
 import json
+import weakref
 
 from .data_manager import *
 from .helpers import *
@@ -58,6 +59,7 @@ from .direction import Direction
 from copy import copy, deepcopy
 from operator import attrgetter
 from .market_state import MarketState
+from .meter_point import MeterPoint
 
 from volttron.platform.agent import utils
 from volttron.platform.messaging import topics, headers as headers_mod
@@ -75,7 +77,8 @@ class Neighbor(object):
 
     def __init__(self,
                  convergence_threshold=0.05,
-                 cost_parameters=[0.0, 0.0, 0.0],
+                 cost_parameters=None,
+                 default_vertices=None,
                  demand_month=datetime.today().month,
                  demand_rate=4.5,
                  demand_threshold=1e9,
@@ -87,36 +90,44 @@ class Neighbor(object):
                  loss_factor=0.01,
                  maximum_power=0.0,
                  mechanism='consensus',
+                 meter_points=None,
                  minimum_power=0.0,
                  name='',
                  subclass=None,
                  transactive=False,
+                 transactive_node=None,
                  up_or_down=Direction.unknown):
 
         super(Neighbor, self).__init__()
 
-        self.convergenceThreshold = convergence_threshold   # [Small positive fraction]: May affect negotiations
-        self.costParameters = cost_parameters               # 3x[float]: Parameters of quadratic production cost
-        self.demandMonth = demand_month                     # [month number]: Used to reset demand charges
-        self.demandRate = demand_rate                       # [$ / kW (/h)]: rate determinant
-        self.demandThreshold = demand_threshold             # [kW]; current power above which demand charges accrue
-        self.demandThresholdCoef = demand_threshold_coef    # Factor by which threshold is reduced in new month
-        self.description = description                      # [text]
-        self.effectiveImpedance = effective_impedance       # [Ohms]: (future) may be used for loss effects
-        self.friend = friend                                # [boolean]: True for collaborative, friendly Neighbor
-        self.location = location                            # [text]
-        self.lossFactor = loss_factor                       # [dimensionless] 0.01 = 1% full-load loss
-        self.maximumPower = maximum_power                   # [avg.kW, signed] Object's physical "hard" constraint
-        self.mechanism = mechanism                          # future, unused
-        self.minimumPower = minimum_power                   # [avg.kW, signed] Object's physical "hard" constraint
-        self.name = name                                    # [text]
-        self.subclass = subclass                            # future, unused
-        self.transactive = transactive                      # [boolean]: True for transactive neighbor
-        self.upOrDown = up_or_down                          # 'upstream' or 'downstream' direction of this neighbor
+        self.tn = None if transactive_node is None else weakref.proxy(transactive_node)
+
+        if cost_parameters is None:
+            cost_parameters = [0.0, 0.0, 0.0]
+        self.convergenceThreshold = float(convergence_threshold)      # [Small positive fraction]: May affect negotiations
+        self.costParameters = [float(cp) for cp in cost_parameters]   # 3x[float]: Parameters of quadratic production cost
+        self.demandMonth = int(demand_month)                          # [month number]: Used to reset demand charges
+        self.demandRate = float(demand_rate)                          # [$ / kW (/h)]: rate determinant
+        self.demandThreshold = float(demand_threshold)                # [kW]; current power above which demand charges accrue
+        self.demandThresholdCoef = float(demand_threshold_coef)       # Factor by which threshold is reduced in new month
+        self.description = str(description)                           # [text]
+        self.effectiveImpedance = float(effective_impedance)          # [Ohms]: (future) may be used for loss effects
+        self.friend = validate_bool(friend, 'friend')                 # [boolean]: True for collaborative, friendly Neighbor
+        self.location = str(location)                                 # [text]
+        self.lossFactor = float(loss_factor)                          # [dimensionless] 0.01 = 1% full-load loss
+        self.maximumPower = float(maximum_power)                      # [avg.kW, signed] Object's physical "hard" constraint
+        self.mechanism = mechanism                                    # future, unused
+        self.minimumPower = float(minimum_power)                      # [avg.kW, signed] Object's physical "hard" constraint
+        self.name = str(name)                                         # [text]
+        self.subclass = subclass                                      # future, unused
+        self.transactive = validate_bool(transactive, 'transactive')  # [boolean]: True for transactive neighbor
+        self.upOrDown = Direction[up_or_down]                         # 'upstream' or 'downstream' direction of this neighbor
 
         # These static lists are maintained by each neighbor object:
-        self.defaultVertices = [Vertex(float("inf"), 0.0, 1)]  # [IntervalValue] Values are [Vertices]
-        self.meterPoints = []                               # [MeterPoint] See class MeterPoint
+        self.defaultVertices = [Vertex(float("inf"), 0.0, 1)] if default_vertices is None \
+            else Vertex.vertex_list(default_vertices)                 # [IntervalValue] Values are [Vertices]
+        self.meterPoints = [] if meter_points is None else\
+            self._initialize_meter_points(meter_points)                     # [MeterPoint] See class MeterPoint
 
         # These properties and lists are to be dynamically assigned. An implementer would usually not manually assign
         # these properties.
@@ -135,6 +146,15 @@ class Neighbor(object):
         # SN: Added to integrate new state machine logic with VOLTTRON
         self.publishTopic = None
         self.receivedCurves = None
+
+    def _initialize_meter_points(self, meter_points):
+        if all([isinstance(mp, MeterPoint) for mp in meter_points]):
+            return [weakref.proxy(mp) for mp in meter_points]
+        elif all([isinstance(mp, str) for mp in meter_points]):
+            return [weakref.proxy(mp) for mp in self.tn.get_meter_points_by_name(meter_points)]
+        else:
+            raise ValueError(f'All meter points assigned to Neighbor {self.name} must be an instance of class'
+                             f' MeterPoint or the name of a MeterPoint held by the TransactiveNode.')
 
     def calculate_reserve_margin(self, market):
         # CALCULATE_RESERVE_MARGIN() - Estimate the spinning reserve margin in each active time interval
@@ -528,6 +548,9 @@ class Neighbor(object):
             # An appropriate MeterPoint was found. The demand threshold may be updated from the MeterPoint.
 
             # Update the demand threshold.
+            # TODO: This appears to be reading the wrong variable name (it is current_measurement)
+            # TODO: This could be done with PushMeter by statistics.mean(get_values(since=...)),
+            #  possibly w/ check for of values since then.
             self.demandThreshold = max([0, self.demandThreshold, mtr.currentMeasurement])  # [avg.kW]
             #_log.debug("Meter: {} measurement: {} threshold: {}".format(mtr.name,
             #                                                            mtr.current_measurement,

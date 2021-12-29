@@ -77,8 +77,8 @@ class TccModel(LocalAsset):
     # minimum and maximum inflection points and are therefore very like Vertex
     # objects.
 
-    def __init__(self):
-        super(TccModel, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(TccModel, self).__init__(*args, **kwargs)
         self.buildingRecords = None
         self.quantities = None
         self.tcc_curves = None
