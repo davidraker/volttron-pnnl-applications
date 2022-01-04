@@ -73,6 +73,16 @@ class TransactiveNode(object):
                 meter_point_list.append(self.meterPoints[available_mps.index(mp)])
         return meter_point_list
 
+    def get_information_services_by_name(self, information_services):
+        ism_list = []
+        available_isms = [ism.name for ism in self.informationServiceModels]
+        for ism in information_services:
+            if ism not in available_isms:
+                raise ValueError(f'Information Service {ism} is not available.')
+            else:
+                ism_list.append(self.informationServiceModels[available_isms.index(ism)])
+        return ism_list
+
     def get_market_by_name(self, market_name):
         available_markets = [mkt.name for mkt in self.markets]
         if market_name not in available_markets:

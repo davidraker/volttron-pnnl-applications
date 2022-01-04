@@ -86,7 +86,7 @@ class Market(object):
                  interval_duration=timedelta(hours=1),
                  intervals_to_clear=1,
                  market_clearing_interval=timedelta(hours=1),
-                 market_clearing_time=None,
+                 market_clearing_time=Timer.get_cur_time(),
                  market_lead_time=timedelta(hours=0),
                  market_order=1,
                  market_series_name='Market Series',
@@ -94,14 +94,13 @@ class Market(object):
                  market_type=MarketTypes.unknown,
                  method=Method.Interpolation,
                  name='',
-                 next_market_clearing_time=None,
+                 next_market_clearing_time=Timer.get_cur_time(),
                  negotiation_lead_time=timedelta(hours=0),
                  prior_market_in_series=None,
                  real_time_duration=15,
                  transactive_node=None):
 
-        if transactive_node:
-            self.tn = weakref.proxy(transactive_node)
+        self.tn = weakref.ref(transactive_node) if transactive_node else None
         # These properties are relatively static and may be received as parameters:
         self.activationLeadTime = activation_lead_time if isinstance(activation_lead_time, timedelta)\
             else timedelta(seconds=activation_lead_time)  # [timedelta] Time in market state "Active"
@@ -125,19 +124,32 @@ class Market(object):
             else timedelta(seconds=market_lead_time)  # [timedelta] Time in market state "MarketLead"
         self.marketOrder = int(market_order)  # [pos. integer] Ordering of sequential markets  (Unused)
         self.marketSeriesName = str(market_series_name)  # Successive market series objects share this name root
-        self.marketToBeRefined = weakref.proxy(market_to_be_refined) if isinstance(market_to_be_refined, Market)\
-            else weakref.proxy(self.tn.get_market_by_name(market_to_be_refined))  # [Market] Pointer to market to be refined or corrected
+        # [Market] Pointer to market to be refined or corrected
+        if isinstance(market_to_be_refined, Market):
+            self.marketToBeRefined = weakref.ref(market_to_be_refined)
+        elif market_to_be_refined and self.tn and self.tn():
+            self.marketToBeRefined = weakref.ref(self.tn().get_market_by_name(market_to_be_refined))
+        else:
+            self.marketToBeRefined = None
         self.marketType = market_type if isinstance(market_type, MarketTypes)\
             else MarketTypes[market_type] # [MarketTypes] enumeration
-        self.method = method if isinstance(method, Method)\
-            else Method[method]  # Solution method {1: subgradient, 2: interpolation}
+        if isinstance(method, Method): # Solution method {1: subgradient, 2: interpolation}
+            self.method = method
+        elif isinstance(method, int):
+            self.method = Method(method)
+        else:
+            self.method = Method[method]
         self.name = str(name)  # This market object's name. Use market series name as root
         self.negotiationLeadTime = negotiation_lead_time if isinstance(negotiation_lead_time, timedelta)\
             else timedelta(seconds=negotiation_lead_time)  # [timedelta] Time in market state "Negotiation"
         self.nextMarketClearingTime = next_market_clearing_time if isinstance(next_market_clearing_time, datetime)\
             else parser.parse(next_market_clearing_time)  # [datetime] Time of next market object's clearing
-        self.priorMarketInSeries = weakref.proxy(prior_market_in_series) if isinstance(prior_market_in_series, Market)\
-            else weakref.proxy(self.tn.get_market_by_name(prior_market_in_series))  # [Market] Pointer to preceding market in this market series
+        if isinstance(prior_market_in_series, Market):
+            self.priorMarketInSeries = weakref.ref(prior_market_in_series) # [Market] Pointer to preceding market in this market series
+        elif prior_market_in_series and self.tn and self.tn():
+            self.priorMarketInSeries = weakref.ref(self.tn().get_market_by_name(prior_market_in_series))
+        else:
+            self.priorMarketInSeries = None
 
         # These are dynamic properties that are assigned in code and should not be manually configured:
         self.activeVertices = []  # [IntervalValue]; values are [vertices]
@@ -1337,13 +1349,11 @@ class Market(object):
 
                 # The time interval will be found in prior markets of this series only if more than one time
                 # interval is cleared by each market.
-                if not isinstance(self.priorMarketInSeries, type(None)) \
-                        and self.priorMarketInSeries is not None \
-                        and self.intervalsToClear > 1 \
+                if self.priorMarketInSeries and self.priorMarketInSeries() and self.intervalsToClear > 1 \
                         and marginal_price is None:
 
                     # Look for only the market just prior to this one, based on its market clearing time.
-                    prior_market_in_series = self.priorMarketInSeries
+                    prior_market_in_series = self.priorMarketInSeries()
 
                     # Gather the marginal prices from the most recent similar market.
                     prior_marginal_prices = prior_market_in_series.marginalPrices
@@ -1388,12 +1398,10 @@ class Market(object):
 
                 # If there is a prior market indicated and a marginal price has not been found,
                 # 200902DJH: Change this from elif to if with added continue statement
-                if not isinstance(self.marketToBeRefined, type(None)) \
-                        and self.marketToBeRefined is not None \
-                        and marginal_price is None:
+                if self.marketToBeRefined and self.marketToBeRefined() and marginal_price is None:
                     # _log.debug("Market name: {}, check_marginal_price: Method 3".format(self.name))
                     # Read the this market's prior refined market name.
-                    prior_market = self.marketToBeRefined
+                    prior_market = self.marketToBeRefined()
 
                     # Gather the marginal prices from the most recent similar market.
                     prior_marginal_prices = prior_market.marginalPrices

@@ -42,7 +42,7 @@ under Contract DE-AC05-76RL01830
 """
 
 
-from helpers import validate_bool
+from .helpers import validate_bool
 
 
 class Vertex(object):

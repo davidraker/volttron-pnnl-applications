@@ -73,8 +73,7 @@ class InformationServiceModel(object):
                  transactive_node=None
                  ):
 
-        if transactive_node:
-            self.tn = weakref.proxy(transactive_node)
+        self.tn = weakref.ref(transactive_node) if transactive_node else None
         # InformationService
         self.address = str(address)  # perhaps a web address storage
         self.description = str(description)

@@ -100,7 +100,7 @@ class Neighbor(object):
 
         super(Neighbor, self).__init__()
 
-        self.tn = None if transactive_node is None else weakref.proxy(transactive_node)
+        self.tn = None if transactive_node is None else weakref.ref(transactive_node)
 
         if cost_parameters is None:
             cost_parameters = [0.0, 0.0, 0.0]
@@ -121,13 +121,31 @@ class Neighbor(object):
         self.name = str(name)                                         # [text]
         self.subclass = subclass                                      # future, unused
         self.transactive = validate_bool(transactive, 'transactive')  # [boolean]: True for transactive neighbor
-        self.upOrDown = Direction[up_or_down]                         # 'upstream' or 'downstream' direction of this neighbor
+        if isinstance(up_or_down, Direction):  # 'upstream' or 'downstream' direction of this neighbor
+            self.upOrDown = up_or_down
+        elif isinstance(int):
+            self.upOrDown = Direction(up_or_down)
+        else:
+            self.upOrDown = Direction[up_or_down]
 
+        #########
         # These static lists are maintained by each neighbor object:
+        #########
+
+        # [IntervalValue] Values are [Vertices]
         self.defaultVertices = [Vertex(float("inf"), 0.0, 1)] if default_vertices is None \
-            else Vertex.vertex_list(default_vertices)                 # [IntervalValue] Values are [Vertices]
-        self.meterPoints = [] if meter_points is None else\
-            self._initialize_meter_points(meter_points)                     # [MeterPoint] See class MeterPoint
+            else Vertex.vertex_list(default_vertices)
+
+        # [MeterPoint] See class MeterPoint
+        if meter_points is None:
+            self.meterPoints = []
+        elif all([isinstance(mp, MeterPoint) for mp in meter_points]):
+            self.meterPoints = [weakref.ref(mp) for mp in meter_points]
+        elif all([isinstance(mp, str) for mp in meter_points]) and self.tn and self.tn():
+            self.meterPoints = [weakref.ref(mp) for mp in self.tn().get_meter_points_by_name(meter_points)]
+        else:
+            raise ValueError(f'All meter points assigned to Neighbor {self.name} must be an instance of class'
+                             f' MeterPoint or the name of a MeterPoint held by the TransactiveNode.')
 
         # These properties and lists are to be dynamically assigned. An implementer would usually not manually assign
         # these properties.
@@ -146,15 +164,6 @@ class Neighbor(object):
         # SN: Added to integrate new state machine logic with VOLTTRON
         self.publishTopic = None
         self.receivedCurves = None
-
-    def _initialize_meter_points(self, meter_points):
-        if all([isinstance(mp, MeterPoint) for mp in meter_points]):
-            return [weakref.proxy(mp) for mp in meter_points]
-        elif all([isinstance(mp, str) for mp in meter_points]):
-            return [weakref.proxy(mp) for mp in self.tn.get_meter_points_by_name(meter_points)]
-        else:
-            raise ValueError(f'All meter points assigned to Neighbor {self.name} must be an instance of class'
-                             f' MeterPoint or the name of a MeterPoint held by the TransactiveNode.')
 
     def calculate_reserve_margin(self, market):
         # CALCULATE_RESERVE_MARGIN() - Estimate the spinning reserve margin in each active time interval
@@ -505,7 +514,7 @@ class Neighbor(object):
 
         # Find the MeterPoint that is configured to measure average demand for this Neighbor. The determination is
         # based on the meter's MeasurementType.
-        mtr = [x for x in self.meterPoints if x.measurementType == MeasurementType.AverageDemandkW]
+        mtr = [x() for x in self.meterPoints if x().measurementType == MeasurementType.AverageDemandkW]
         mtr = mtr[0] if len(mtr) > 0 else None
 
         if mtr is None:
