@@ -42,22 +42,20 @@ under Contract DE-AC05-76RL01830
 """
 
 import logging
-from logging import warning
-from .market import Market
-from .direction import Direction
-from .market_types import MarketTypes
+
 from warnings import warn
-from .timer import Timer
+
+from .direction import Direction
 from .helpers import production
 from .interval_value import IntervalValue
+from .market import Market
+from .market_types import MarketTypes
 from .measurement_type import MeasurementType
+from .utils.log import setup_logging
 
-from volttron.platform.agent import utils
-from volttron.platform.messaging import topics, headers as headers_mod
-from volttron.platform.agent.utils import (get_aware_utc_now, format_timestamp)
-
-utils.setup_logging()
+setup_logging()
 _log = logging.getLogger(__name__)
+
 
 class Auction(Market):
     """
@@ -86,7 +84,7 @@ class Auction(Market):
 
         # Set the auction convergence flag false prior to the Negotiation market state.
         self.converged = False
-        #_log.debug("Market name: {} transition_from_active_to_negotiation".format(self.name))
+        # _log.debug("Market name: {} transition_from_active_to_negotiation".format(self.name))
         # In an auction, each asset is called upon once per market clearing time to schedule its power.
         for x in range(len(my_transactive_node.localAssets)):
             local_asset = my_transactive_node.localAssets[x]  # the indexed local asset
@@ -98,18 +96,6 @@ class Auction(Market):
             local_asset.schedule(self)
 
             _log.debug(f"{self.name}: transition_from_active_to_negotiation")
-
-            self.publish_records(my_transactive_node)
-            # Publish local asset info
-            # SN: No need, publish transactive operation instead
-            '''topic = "{}/{}".format(my_transactive_node.local_asset_topic,
-                                   my_transactive_node.localAssets[x].name)
-            msg = local_asset.getDict()
-            headers = {headers_mod.DATE: format_timestamp(Timer.get_cur_time())}
-            _log.debug(
-                "AUCTION:transition_from_active_to_negotiation: {} and info: {}".format(topic, msg))
-            my_transactive_node.vip.pubsub.publish("pubsub",topic, headers, msg)
-            '''
         return None
 
     # TODO: On transition to the negotiation state, make sure the auction is not converged.
@@ -123,11 +109,11 @@ class Auction(Market):
         """
         # This logic is only meaningful before the market convergence flag is set true.
         if self.converged is False:
-            #_log.debug("Market name: {} while_in_negotiation. Checking asset powers have been scheduled".format(self.name))
+            # _log.debug("Market name: {} while_in_negotiation. Checking asset powers have been scheduled".format(
+            #  self.name))
             # An Auction should check that all LocalAsset objects have finished scheduling their powers.
             all_calculated = True
-            for x in range(len(my_transactive_node.localAssets)):
-                local_asset = my_transactive_node.localAssets[x]
+            for local_asset in my_transactive_node.localAssets:
                 if not local_asset.scheduleCalculated:
                     all_calculated = False
                     break
@@ -135,21 +121,10 @@ class Auction(Market):
             # If, in fact, all the assets have scheduled their powers, the auction market has nothing left to do within
             # the Negotiation market state, and the market convergence flag is set true.
             if all_calculated is True:
-                #_log.debug("Market name: {} while_in_negotiation. ALL ASSETS HAVE BEEN SCHEDULED".format(self.name))
+                # _log.debug("Market name: {} while_in_negotiation. ALL ASSETS HAVE BEEN SCHEDULED".format(self.name))
                 topics = []
                 self.converged = True
                 self._stateIsCompleted = True
-                headers = {headers_mod.DATE: format_timestamp(Timer.get_cur_time())}
-                for local_asset in my_transactive_node.localAssets:
-                    # Publish local asset info
-                    topic = "{}/{}".format(my_transactive_node.local_asset_topic,
-                                           local_asset.name)
-                    msg = local_asset.getDict()
-                    headers = {headers_mod.DATE: format_timestamp(Timer.get_cur_time())}
-                    #_log.debug(
-                    #    "AUCTION:while_in_negotiation: {} and info: {}".format(topic, msg))
-                    #my_transactive_node.vip.pubsub.publish("pubsub", topic, headers, msg)
-
                 # 210208DJH: This new flag must be set true to leave this state and allow the next transition.
 
         return None
@@ -163,7 +138,7 @@ class Auction(Market):
         :param my_transactive_node: my transactive node agent object
         :return: None
         """
-        #_log.debug("Market name: {} while_in_market_lead.".format(self.name))
+        # _log.debug("Market name: {} while_in_market_lead.".format(self.name))
         # TODO: This could use a convergence flag logic to assert that all bids are received and offers sent.
         # Identify the set of neighbor agents that are identified as "upstream" and "downstream".
 
@@ -298,7 +273,8 @@ class Auction(Market):
 
             # Check whether any active market time intervals are not among the received record intervals.
             missing_time_intervals = [x.name for x in self.timeIntervals if x.name not in received_time_intervals]
-            _log.debug("Market name: {} while_in_delivery_lead Received all transactive signals from upstream agents".format(self.name))
+            #_log.debug("Market name: {} while_in_delivery_lead Received all transactive signals from upstream agents".format(self.name))
+            _log.debug(f"Mkt: {self.name}, in delivery_lead, checking for missing intervals: {missing_time_intervals}")
 
             # If time intervals are missing among the upstream agent's transactive records,
             if missing_time_intervals:
@@ -389,7 +365,6 @@ class Auction(Market):
         """
         _log.debug(f"{self.name}: transition_from_inactive_to_active")
         #super(Auction, self).transition_from_inactive_to_active(my_transactive_node)
-        self.publish_records(my_transactive_node)
         return None
 
     def transition_from_negotiation_to_market_lead(self, my_transactive_node):
@@ -400,8 +375,7 @@ class Auction(Market):
         :return: None
         """
         _log.debug(f"{self.name}: transition_from_negotiation_to_market_lead")
-        #super(Auction, self).transition_from_negotiation_to_market_lead(my_transactive_node)
-        self.publish_records(my_transactive_node)
+        # super(Auction, self).transition_from_negotiation_to_market_lead(my_transactive_node)
         return None
 
     def transition_from_market_lead_to_delivery_lead(self, my_transactive_node):
@@ -412,8 +386,7 @@ class Auction(Market):
         :return: None
         """
         _log.debug(f"{self.name}: transition_from_market_lead_to_delivery_lead")
-        #super(Auction, self).transition_from_market_lead_to_delivery_lead(my_transactive_node)
-        self.publish_records(my_transactive_node)
+        # super(Auction, self).transition_from_market_lead_to_delivery_lead(my_transactive_node)
         return None
 
     def transition_from_delivery_lead_to_delivery(self, my_transactive_node):
@@ -423,14 +396,6 @@ class Auction(Market):
         """
         _log.debug(f"{self.name}: transition_from_delivery_lead_to_delivery")
         super(Auction, self).transition_from_delivery_lead_to_delivery(my_transactive_node)
-        headers = {headers_mod.DATE: format_timestamp(Timer.get_cur_time())}
-        msg = dict()
-        msg['tnt_market_name'] = self.name
-        my_transactive_node.vip.pubsub.publish(peer='pubsub',
-                                               topic=my_transactive_node.market_balanced_price_topic,
-                                               headers=headers,
-                                               message=msg)
-        self.publish_records(my_transactive_node)
         return None
 
     def transition_from_reconcile_to_expired(self, my_transactive_node):
@@ -441,36 +406,4 @@ class Auction(Market):
         """
         _log.debug("transition_from_reconcile_to_expired")
         super(Auction, self).transition_from_reconcile_to_expired(my_transactive_node)
-        self.publish_records(my_transactive_node)
         return None
-
-    def publish_records(self, my_transactive_node, upstream_agents=None, downstream_agents=None):
-        headers = {headers_mod.DATE: format_timestamp(Timer.get_cur_time())}
-        transactive_operation = dict()
-        transactive_operation['prices'] = list()
-        transactive_operation['demand'] = dict()
-        transactive_operation['demand']['bid'] = dict()
-
-#        _log.debug("AUCTION: BEFORE: info: {}".format(transactive_operation))
-        for idx, p in enumerate(self.marginalPrices):
-            transactive_operation['prices'].append((utils.format_timestamp(p.timeInterval.startTime), p.value))
-
-        for neighbor in my_transactive_node.neighbors:
-            transactive_operation['demand']['bid'][neighbor.name] = neighbor.getDict()['sent_signal']
-
-        if self.name.startswith('Real-Time'):
-            transactive_operation['demand']['actual'] = dict()
-            transactive_operation['demand']['actual']['neighbor'] = dict()
-            transactive_operation['demand']['actual']['assets'] = dict()
-
-            for neighbor in my_transactive_node.neighbors:
-                transactive_operation['demand']['actual']['neighbor'][neighbor.name] = \
-                    neighbor.getDict()['received_signal']
-            for asset in my_transactive_node.localAssets:
-                transactive_operation['demand']['actual']['assets'][asset.name] = asset.getDict()['vertices']
-
-        topic = "{}/{}".format(my_transactive_node.transactive_operation_topic, self.name)
-        my_transactive_node.vip.pubsub.publish(peer='pubsub', topic=topic,
-                                               headers=headers, message=transactive_operation)
-#        _log.debug("AUCTION: Publishing on market topic: {} and info: {}".format(topic, transactive_operation))
-

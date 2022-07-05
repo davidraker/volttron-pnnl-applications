@@ -45,10 +45,10 @@ from .helpers import *
 from .measurement_type import MeasurementType
 from .local_asset_model import LocalAsset
 from .interval_value import IntervalValue
-from volttron.platform.agent import utils
 from .market_state import MarketState
+from .utils.log import setup_logging
 
-utils.setup_logging()
+setup_logging()
 _log = logging.getLogger(__name__)
 
 
@@ -59,7 +59,9 @@ class SolarPvResource(LocalAsset):
     # reduce the expected solar generation according to cloud cover, and (2) method solar_generation() that creates the
     # envelope, best-case, power production for the resource as a function of time-of-day.
 
-    def __init__(self, cloud_factor=1.0, *args, **kwargs):
+    def __init__(self,
+                 cloud_factor=1.0,
+                 *args, **kwargs):
         super(SolarPvResource, self).__init__(*args, **kwargs)
         self.cloudFactor = float(cloud_factor)
 

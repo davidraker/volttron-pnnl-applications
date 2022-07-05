@@ -43,31 +43,31 @@ under Contract DE-AC05-76RL01830
 
 import gevent
 import logging
+import os
 import weakref
-from datetime import timedelta
+
+from copy import deepcopy
+from datetime import time, timedelta
 from dateutil import parser
+# from matplotlib import pyplot as plt
+from warnings import warn
 
-from volttron.platform.agent import utils
-
-from .vertex import Vertex
+from .data_manager import *
 from .helpers import *
 from .measurement_type import MeasurementType
 from .interval_value import IntervalValue
-# from meter_point import MeterPoint
 from .market_state import MarketState
-from .time_interval import TimeInterval
-from .timer import Timer
-import os
 from .market_types import MarketTypes
 from .method import Method
-from warnings import warn
-# from matplotlib import pyplot as plt
-from .data_manager import *
+from .time_interval import TimeInterval
+from .timer import Timer
+from .utils.log import setup_logging
+from .vertex import Vertex
 
-utils.setup_logging()
+setup_logging()
 _log = logging.getLogger(__name__)
 
-DEBUG=0
+DEBUG = 0
 
 
 class Market(object):
@@ -79,6 +79,7 @@ class Market(object):
                  activation_lead_time=timedelta(hours=0),
                  commitment=False,
                  default_price=0.05,
+                 delivery_anchor_time=None,
                  delivery_lead_time=timedelta(hours=0),
                  duality_gap_threshold=0.01,
                  future_horizon=timedelta(hours=24),
@@ -86,18 +87,16 @@ class Market(object):
                  interval_duration=timedelta(hours=1),
                  intervals_to_clear=1,
                  market_clearing_interval=timedelta(hours=1),
-                 market_clearing_time=Timer.get_cur_time(),
+                 market_clearing_time=None,
                  market_lead_time=timedelta(hours=0),
                  market_order=1,
                  market_series_name='Market Series',
                  market_to_be_refined=None,
                  market_type=MarketTypes.unknown,
                  method=Method.Interpolation,
-                 name='',
-                 next_market_clearing_time=Timer.get_cur_time(),
                  negotiation_lead_time=timedelta(hours=0),
                  prior_market_in_series=None,
-                 real_time_duration=15,
+                 real_time_duration=timedelta(minutes=15),
                  transactive_node=None):
 
         self.tn = weakref.ref(transactive_node) if transactive_node else None
@@ -106,6 +105,9 @@ class Market(object):
             else timedelta(seconds=activation_lead_time)  # [timedelta] Time in market state "Active"
         self.commitment = validate_bool(commitment, 'commitment')  # [Boolean] If true, scheduled power & price are commitments
         self.defaultPrice = float(default_price)  # [$/kWh] Static default price assignment
+        # deliveryAnchorTime [time] A time of day a market will always start (start immediately if None)
+        self.deliveryAnchorTime = time.fromisoformat(delivery_anchor_time) if isinstance(delivery_anchor_time, str)\
+            else delivery_anchor_time
         self.deliveryLeadTime = delivery_lead_time if isinstance(delivery_lead_time, timedelta)\
             else timedelta(seconds=delivery_lead_time) # [timedelta] Time in market state "DeliveryLead"
         self.dualityGapThreshold = float(duality_gap_threshold)  # [dimensionless]; 0.01 = 1%
@@ -118,8 +120,6 @@ class Market(object):
         self.intervalsToClear = int(intervals_to_clear)  # [int] Market intervals to be cleared by this market object
         self.marketClearingInterval = market_clearing_interval if isinstance(market_clearing_interval, timedelta)\
             else timedelta(seconds=market_clearing_interval)  # [timedelta] Time between successive market clearings
-        self.marketClearingTime = market_clearing_time if isinstance(market_clearing_time, datetime)\
-            else parser.parse(market_clearing_time)  # [datetime] Time that a market object clears
         self.marketLeadTime = market_lead_time if isinstance(market_lead_time, timedelta)\
             else timedelta(seconds=market_lead_time)  # [timedelta] Time in market state "MarketLead"
         self.marketOrder = int(market_order)  # [pos. integer] Ordering of sequential markets  (Unused)
@@ -139,17 +139,17 @@ class Market(object):
             self.method = Method(method)
         else:
             self.method = Method[method]
-        self.name = str(name)  # This market object's name. Use market series name as root
         self.negotiationLeadTime = negotiation_lead_time if isinstance(negotiation_lead_time, timedelta)\
             else timedelta(seconds=negotiation_lead_time)  # [timedelta] Time in market state "Negotiation"
-        self.nextMarketClearingTime = next_market_clearing_time if isinstance(next_market_clearing_time, datetime)\
-            else parser.parse(next_market_clearing_time)  # [datetime] Time of next market object's clearing
         if isinstance(prior_market_in_series, Market):
             self.priorMarketInSeries = weakref.ref(prior_market_in_series) # [Market] Pointer to preceding market in this market series
         elif prior_market_in_series and self.tn and self.tn():
             self.priorMarketInSeries = weakref.ref(self.tn().get_market_by_name(prior_market_in_series))
         else:
             self.priorMarketInSeries = None
+        self.real_time_duration = real_time_duration if isinstance(real_time_duration, timedelta)\
+            else timedelta(seconds=real_time_duration)
+        self.marketClearingTime = market_clearing_time if market_clearing_time else self._calculate_clearing_time()
 
         # These are dynamic properties that are assigned in code and should not be manually configured:
         self.activeVertices = []  # [IntervalValue]; values are [vertices]
@@ -157,12 +157,15 @@ class Market(object):
         self.blendedPrices2 = []  # [IntervalValue] (future functionality)
         self.converged = False
         self.dualCosts = []  # [IntervalValue]; Values are [$]
+        # TODO: Does isNewestMarket need a setting for instantiation of some markets at startup?
         self.isNewestMarket = False  # [Boolean] Flag held by only newest market in market series
         self.marketState = MarketState.Inactive  # [MarketState] Current market state
         self.marginalPrices = []  # [IntervalValue]; Values are [$/kWh]
+        # This market object's name. Use market series name as root
+        self.name = self.marketSeriesName.replace(' ', '_') + '_' + str(self.marketClearingTime)[:19]
         self.netPowers = []  # [IntervalValue]; Values are [avg.kW]
-        #        average_price = 0.06                                # Initialization [$/kWh]
-        average_price = 0.035  # Close to real time
+        self.nextMarketClearingTime = self.marketClearingTime + self.marketClearingInterval
+        average_price = 0.035  # Initialization [$/kWh] Close to real time
         st_dev_price = 0.01  # Initialization [$/kWh]
         self.priceModel = [average_price, st_dev_price] * 24  # Each hour's tuplet average and st. dev. price.
         self.productionCosts = []  # [IntervalValue]; Values are [$]
@@ -174,12 +177,22 @@ class Market(object):
         self.totalProductionCost = 0.0  # [$]
 
         self.new_data_signal = False
-        self.deliverylead_schedule_power = False
-        self.real_time_duration = real_time_duration
+        self.delivery_lead_schedule_power = False
         # 210118DJH: Must introduce a flag to end activities after various market states. This flag should be made
         #            false in each transition and made true after all the tasks have been completed in the ensuing
         #            market state.
         self._stateIsCompleted = False
+
+    def _calculate_clearing_time(self):
+        now = Timer.get_cur_time()
+        run_gap = (self.deliveryLeadTime + self.marketLeadTime + self.negotiationLeadTime
+                   + self.activationLeadTime)  # + timedelta(seconds=1)  # TODO: Is this second necessary? May cause issues with spawning new markets.
+        if not self.deliveryAnchorTime:
+            delivery_start = now + run_gap
+        else:
+            delivery_anchor_today = datetime.combine(now.date(), self.deliveryAnchorTime)
+            delivery_start = now + ((delivery_anchor_today - now - run_gap) % self.marketClearingInterval)
+        return delivery_start - self.deliveryLeadTime
 
     def events(self, my_transactive_node):
         """
@@ -530,32 +543,28 @@ class Market(object):
         # A new market object must be instantiated. Many of its properties are the same as that of the called market
         # or can be derived therefrom. The new market should typically be initialized from the same class as the calling
         # market (i.e., self).
-        new_market = self.__class__()  # This uses a constructor, but most properties must be redefined.
+        new_market = self.__class__(
+            market_series_name=self.marketSeriesName,
+            market_clearing_time=new_market_clearing_time,
+            delivery_lead_time=self.deliveryLeadTime,
+            market_lead_time=self.marketLeadTime,
+            negotiation_lead_time=self.negotiationLeadTime,
+            commitment=self.commitment,
+            default_price=self.defaultPrice,
+            future_horizon=self.futureHorizon,
+            initial_market_state=self.initialMarketState,
+            interval_duration=self.intervalDuration,
+            intervals_to_clear=self.intervalsToClear,
+            market_clearing_interval=self.marketClearingInterval,
+            market_order=self.marketOrder,
+            method=self.method,
+            prior_market_in_series=self
+        )  # This uses a constructor, but most properties must be redefined.
 
-        new_market.marketSeriesName = self.marketSeriesName
-        new_market.marketClearingTime = new_market_clearing_time
-        new_market.nextMarketClearingTime = new_market.marketClearingTime + self.marketClearingInterval
-        new_market.deliveryLeadTime = self.deliveryLeadTime
-        new_market.marketLeadTime = self.marketLeadTime
-        new_market.negotiationLeadTime = self.negotiationLeadTime
-        new_market.commitment = self.commitment
-        new_market.defaultPrice = self.defaultPrice
-        new_market.futureHorizon = self.futureHorizon
-        new_market.initialMarketState = self.initialMarketState
-        new_market.intervalDuration = self.intervalDuration
-        new_market.intervalsToClear = self.intervalsToClear
-        new_market.marketClearingInterval = self.marketClearingInterval
-        new_market.marketOrder = self.marketOrder
-        new_market.method = self.method
-        new_market.priceModel = self.priceModel  # It must be clear that this is a copy, not a reference.
-        new_market.marketState = MarketState.Active
+        # TODO: Added deepcopy, because of note on next line. Is this correct?
+        new_market.priceModel = deepcopy(self.priceModel)  # It must be clear that this is a copy, not a reference.
+        new_market.marketState = MarketState.Active  # TODO: initial_market_state seems to be ignored by constructor....
         new_market.isNewestMarket = True  # This new market now assumes the flag as newest market
-        new_market.priorMarketInSeries = self
-
-        # The market instance is named by concatenating the market name and its market clearing time. There MUST be a
-        # simpler way to format this in Python!
-        dt = str(new_market.marketClearingTime)
-        new_market.name = new_market.marketSeriesName.replace(' ', '_') + '_' + dt[:19]
 
         # Append the new market object to the list of market objects that is maintained by the agent.
         my_transactive_node.markets.append(new_market)
@@ -688,7 +697,7 @@ class Market(object):
         for x in range(len(final_prices)):
             self.model_prices(final_prices[x].timeInterval.startTime, final_prices[x].value)
 
-        self.deliverylead_schedule_power = False
+        self.delivery_lead_schedule_power = False
         return None
 
     def while_in_delivery(self, my_transactive_node):

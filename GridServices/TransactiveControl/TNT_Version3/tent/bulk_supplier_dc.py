@@ -43,9 +43,9 @@ under Contract DE-AC05-76RL01830
 
 
 import logging
-from volttron.platform.agent import utils
 
 from .helpers import *
+from .utils.log import setup_logging
 from .measurement_type import MeasurementType
 from .interval_value import IntervalValue
 from .neighbor_model import Neighbor
@@ -55,7 +55,7 @@ from .timer import Timer
 from .market_state import MarketState
 from .data_manager import append_table
 
-utils.setup_logging()
+setup_logging()
 _log = logging.getLogger(__name__)
 
 
@@ -67,8 +67,8 @@ class BulkSupplier_dc(Neighbor):
     # - Calls on a new function to determine hour type (HLH or LLH).
     # - Mines tables to determine monthly electricity and demand rates in HLH and LLH hour types.
 
-    def __init__(self):
-        super(BulkSupplier_dc, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(BulkSupplier_dc, self).__init__(*args, **kwargs)
         self.transactive = False
 
     def update_vertices(self, market):

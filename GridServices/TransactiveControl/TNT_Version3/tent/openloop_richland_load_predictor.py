@@ -258,19 +258,19 @@ class OpenLoopRichlandLoadPredictor(LocalAsset, object):
     ]
 
     def __init__(self,
-                    cost_parameters=(0.0, 0.0, 0.0),
-                    default_power=0.0,
-                    description='',
-                    engagement_cost=(0.0, 0.0, 0.0),
-                    location='',
-                    maximum_power=0.0,
-                    measurement_interval=timedelta(hours=1),
-                    measurement_type=MeasurementType.Unknown,
-                    measurement_unit=MeasurementUnit.Unknown,
-                    minimum_power=0.0,
-                    name='',
-                    scheduling_horizon=timedelta(hours=24),
-                    subclass=None):
+                 cost_parameters=(0.0, 0.0, 0.0),
+                 default_power=0.0,
+                 description='',
+                 engagement_cost=(0.0, 0.0, 0.0),
+                 location='',
+                 maximum_power=0.0,
+                 measurement_interval=timedelta(hours=1),
+                 measurement_type=MeasurementType.Unknown,
+                 measurement_unit=MeasurementUnit.Unknown,
+                 minimum_power=0.0,
+                 name='',
+                 scheduling_horizon=timedelta(hours=24),
+                 subclass=None):
 
         super(OpenLoopRichlandLoadPredictor, self).__init__()
         self.temperature_forecaster = TemperatureForecastModel,

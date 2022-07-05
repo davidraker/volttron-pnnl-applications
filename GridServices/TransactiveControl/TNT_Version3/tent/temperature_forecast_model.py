@@ -48,20 +48,16 @@ import logging
 from datetime import datetime, timedelta
 from dateutil import parser
 import dateutil.tz
-import gevent
 
 from .information_service_model import InformationServiceModel
 from .measurement_type import MeasurementType
-from .measurement_unit import MeasurementUnit
 from .interval_value import IntervalValue
+from .utils.log import setup_logging
+from .helpers import format_timestamp
 
-from volttron.platform.agent import utils
-from volttron.platform.jsonrpc import RemoteError
 
-utils.setup_logging()
+setup_logging()
 _log = logging.getLogger(__name__)
-
-utils.setup_logging()
 
 
 class TemperatureForecastModel(InformationServiceModel):
@@ -71,46 +67,33 @@ class TemperatureForecastModel(InformationServiceModel):
     This can be changed to read from real-time data source such as WU
     """
 
-    def __init__(self, config_path, parent):
-        super(TemperatureForecastModel, self).__init__()
-        self.config = utils.load_config(config_path)
-        self.weather_config = self.config.get('weather_forecast')
-        self.weather_file = self.weather_config.get("weather_file")
-
-        self.parent = parent
-        remote = self.weather_config.get("remote")
-        self.connection = parent
-        if remote is not None:
-            address = remote.get("address")
-            serverkey = remote.get("serverkey")
-            self.connection = self.parent.vip.auth.connect_remote_platform(address=address, serverkey=serverkey)
-
-        self.predictedValues = []
+    def __init__(self,
+                 location: dict = None,
+                 temperature_point_name: str = '',
+                 tmy_fallback_path: str = '',
+                 weather_file_path: str = None,
+                 *args, **kwargs):
+        super(TemperatureForecastModel, self).__init__(*args, **kwargs)
+        self.weather_file_path = str(weather_file_path)
         self.weather_data = []
-        self.last_modified = None
-        try:
-            self.localtz = dateutil.tz.tzlocal()
-        except:
-            _log.warning("Problem automatically determining timezone! - Default to UTC.")
-            self.localtz = "US/Pacific"
-            self.localtz = dateutil.tz.gettz(self.localtz)
 
-        if self.weather_file is not None:
+        # TODO: Generalize timezone handling.
+        try:
+            self.local_tz = dateutil.tz.tzlocal()
+        except Exception:
+            _log.warning("Problem automatically determining timezone! - Default to UTC.")
+            self.local_tz = "US/Pacific"
+            self.local_tz = dateutil.tz.gettz(self.local_tz)
+
+        if self.weather_file_path is not None:
             self.init_weather_data()
             self.update_information = self.get_forecast_file
         else:
-            self.update_information = self.get_forecast_weatherservice
-            self.weather_vip = self.weather_config.get("weather_vip", "platform.weather_service")
-            self.remote_platform = self.weather_config.get("remote_platform", "")
-            self.location = [self.weather_config.get("location")]
-            self.oat_point_name = self.weather_config.get("temperature_point_name", "air_temperature")
-            self.weather_data = None
-            # there is no easy way to check if weather service is running on a remote platform
-            if self.weather_vip not in self.parent.vip.peerlist.list().get() and self.remote_platform is None:
-                _log.warning("Weather service is not running!")
-            tmy_fallback = self.weather_config.get("tmy_fallback")
-            if tmy_fallback is not None:
-                self.weather_file = tmy_fallback
+            self.update_information = self.get_forecast_weather_service
+            self.location = [dict(location)] if location else []
+            self.oat_point_name = str(temperature_point_name) if temperature_point_name else "air_temperature"
+            if tmy_fallback_path:
+                self.weather_file_path = str(tmy_fallback_path)
                 self.init_weather_data()
 
     def init_weather_data(self):
@@ -119,7 +102,7 @@ class TemperatureForecastModel(InformationServiceModel):
         :return:
         """
         # Get latest modified time
-        cur_modified = os.path.getmtime(self.weather_file)
+        cur_modified = os.path.getmtime(self.weather_file_path)
 
         if self.last_modified is None or cur_modified != self.last_modified:
             self.last_modified = cur_modified
@@ -127,60 +110,19 @@ class TemperatureForecastModel(InformationServiceModel):
             # Clear weather_data for re-init
             self.weather_data = []
             try:
-                with open(self.weather_file) as f:
+                with open(self.weather_file_path) as f:
                     reader = csv.DictReader(f)
                     self.weather_data = [r for r in reader]
                     for rec in self.weather_data:
                         rec['Timestamp'] = parser.parse(rec['Timestamp']).replace(minute=0, second=0, microsecond=0)
                         rec['Value'] = float(rec['Value'])
-            except:
+            except Exception:
                 self.weather_data = []
                 _log.debug("WEATHER - problem parsing weather file!")
 
-    def rpc_handler(self):
-        attempts = 0
-        success = False
-        result = []
-        weather_results = None
-        while not success and attempts < 10:
-            try:
-                result = self.connection.vip.rpc.call(self.weather_vip,
-                                                      "get_hourly_forecast",
-                                                      self.location,
-                                                      external_platform=self.remote_platform).get(timeout=15)
-
-                weather_results = result[0]["weather_results"]
-                success = True
-            except (gevent.Timeout, RemoteError) as ex:
-                _log.warning("RPC call to {} failed for WEATHER forecast: {}".format(self.weather_vip, ex))
-                attempts += 1
-            except KeyError as ex:
-                _log.debug("No WEATHER Results!: {} -- {}".format(result, ex))
-                attempts += 1
-        if attempts >= 10:
-            _log.debug("10 Failed attempts to get WEATHER forecast via RPC!!!")
-            return weather_results
-        return weather_results
-
-    def parse_rpc_data(self, weather_results):
-        weather_data = []
-        try:
-            weather_data = [[parser.parse(oat[0]).astimezone(self.localtz), oat[1][self.oat_point_name]] for oat in
-                            weather_results]
-            weather_data = [[oat[0].replace(tzinfo=None), oat[1]] for oat in weather_data]
-            _log.debug("Parsed WEATHER information: {}".format(weather_data))
-        except KeyError:
-            weather_data = []
-            _log.debug("Measurement WEATHER Point Name is not correct")
-        # How do we deal with never getting weather information?  Exit?
-        except Exception as ex:
-            weather_data = []
-            _log.debug("Exception {} processing WEATHER data.".format(ex))
-        return weather_data
-
     def map_forecast_to_interval(self, mkt, weather_data):
         items = []
-        predictedValues = []
+        predicted_values = []
         for ti in mkt.timeIntervals:
             # Find item which has the same timestamp as ti.timeStamp
             start_time = ti.startTime.replace(minute=0)
@@ -190,25 +132,30 @@ class TemperatureForecastModel(InformationServiceModel):
             if items:
                 temp = items[0]
                 interval_value = IntervalValue(self, ti, mkt, MeasurementType.PredictedValue, temp)
-                predictedValues.append(interval_value)
+                predicted_values.append(interval_value)
             elif previous_measurement:
                 temp = previous_measurement[0]
                 interval_value = IntervalValue(self, ti, mkt, MeasurementType.PredictedValue, temp)
-                predictedValues.append(interval_value)
+                predicted_values.append(interval_value)
                 items = previous_measurement
             else:
                 _log.debug("Cannot assign WEATHER information for interval: {}".format(ti))
-        if len(mkt.timeIntervals) == len(predictedValues):
-            self.predictedValues = predictedValues
+        if len(mkt.timeIntervals) == len(predicted_values):
+            self.predictedValues = predicted_values
             return True
         else:
-            _log.debug("WEATHER data problem when assigning forecast {}".format(len(predictedValues)))
+            _log.debug("WEATHER data problem when assigning forecast {}".format(len(predicted_values)))
             return False
 
-    def get_forecast_weatherservice(self, mkt):
+    def query_weather_data(self):
         """
-        Uses VOLTTRON DarkSky weather agent running on local or remote platform to
-        get 24 hour forecast for weather data.
+        Implement query of remote weather data here.
+        """
+        return []
+
+    def get_forecast_weather_service(self, mkt):
+        """
+        Gets weather data from a weather service using query_weather_data (which needs to be implemented in a subclass).
         :param mkt:
         :return:
         """
@@ -217,25 +164,25 @@ class TemperatureForecastModel(InformationServiceModel):
         if mkt.name.startswith("Real") and self.predictedValues:
             _log.debug("Realtime market, temperature predictions exist")
             return
-        weather_results = self.rpc_handler()
-        weather_data = self.parse_rpc_data(weather_results)
+        weather_data = self.query_weather_data()
         if not self.map_forecast_to_interval(mkt, weather_data):
             if self.predictedValues:
                 hour_gap = mkt.timeIntervals[0].startTime - self.predictedValues[0].timeInterval.startTime
                 max_hour_gap = timedelta(hours=72)
                 if hour_gap > max_hour_gap:
                     self.predictedValues = []
-                    if self.weather_file is not None and self.weather_data:
+                    if self.weather_data:
                         _log.debug("WEATHER using fallback1 tmy data for forecast!")
                         self.get_forecast_file(mkt)
                 else:
-                    predictedValues = []
+                    predicted_values = []
                     for i in range(1, len(mkt.timeIntervals)):
-                        interval_value = IntervalValue(self, mkt.timeIntervals[i], mkt, MeasurementType.PredictedValue, self.predictedValues[i].value)
-                        predictedValues.append(interval_value)
-                    self.predictedValues = predictedValues
+                        interval_value = IntervalValue(self, mkt.timeIntervals[i], mkt, MeasurementType.PredictedValue,
+                                                       self.predictedValues[i].value)
+                        predicted_values.append(interval_value)
+                    self.predictedValues = predicted_values
             else:
-                if self.weather_file is not None and self.weather_data:
+                if self.weather_data:
                     _log.debug("WEATHER using fallback2 tmy data for forecast!")
                     self.get_forecast_file(mkt)
 
@@ -257,7 +204,7 @@ class TemperatureForecastModel(InformationServiceModel):
 
                 # None exist, raise exception
                 if len(items) == 0:
-                    raise Exception('No weather data for time: {}'.format(utils.format_timestamp(ti.startTime)))
+                    raise Exception('No weather data for time: {}'.format(format_timestamp(ti.startTime)))
 
             # Create interval value and add it to predicted values
             temp = items[0]['Value']
@@ -269,17 +216,19 @@ if __name__ == '__main__':
     from market import Market
     import helpers
 
-    forecaster = TemperatureForecastModel('/home/hngo/PycharmProjects/volttron-applications/pnnl/TNSAgent/campus_config.json')
+    # TODO: Move to tests directory and provide a valid path for configuration.
+    forecaster = TemperatureForecastModel(
+        '/home/hngo/PycharmProjects/volttron-applications/pnnl/TNSAgent/campus_config.json')
 
     # Create market with some time intervals
-    mkt = Market()
-    mkt.marketClearingTime = datetime.now().replace(minute=0, second=0, microsecond=0)
-    mkt.nextMarketClearingTime = mkt.marketClearingTime + mkt.marketClearingInterval
+    market = Market()
+    market.marketClearingTime = datetime.now().replace(minute=0, second=0, microsecond=0)
+    market.nextMarketClearingTime = market.marketClearingTime + market.marketClearingInterval
 
-    mkt.check_intervals()
+    market.check_intervals()
 
     # Test update_information
-    forecaster.update_information(mkt)
+    forecaster.update_information(market)
 
     times = [helpers.format_ts(x.timeInterval.startTime) for x in forecaster.predictedValues]
 

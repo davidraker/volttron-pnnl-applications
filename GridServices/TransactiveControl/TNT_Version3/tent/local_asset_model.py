@@ -44,20 +44,19 @@ under Contract DE-AC05-76RL01830
 import logging
 import weakref
 
-from volttron.platform.agent import utils
-
 from .vertex import Vertex
 from .meter_point import MeterPoint
 from .information_service_model import InformationServiceModel
 from .interval_value import IntervalValue
 from .measurement_type import MeasurementType
 from .helpers import *
+from .utils.log import setup_logging
 # from market import Market
 from .time_interval import TimeInterval
 from .timer import Timer
 from .market_state import MarketState
 
-utils.setup_logging()
+setup_logging()
 _log = logging.getLogger(__name__)
 
 # 191218DJH: This class originally inherited from class Model. Model is being deleted. Its properties and methods are
@@ -133,9 +132,9 @@ class LocalAsset(object):
         if information_services is None:
             self.informationServices = []
         elif all([isinstance(ism, InformationServiceModel) for ism in information_services]):
-            self.informationServices = [weakref.ref(ism) for ism in information_services]
+            self.informationServices = [ism for ism in information_services]
         elif all([isinstance(ism, str) for ism in information_services]) and self.tn and self.tn():
-            self.informationServices = [weakref.ref(ism) for ism in
+            self.informationServices = [ism for ism in
                                         self.tn().get_information_services_by_name(information_services)]
         else:
             raise ValueError(f'All information services assigned to LocalAsset {self.name} must be an instance of class'
@@ -195,15 +194,6 @@ class LocalAsset(object):
         """
         # But give power scheduling priority for a LocalAsset
         self.schedule_power(market)
-
-        # Log if possible
-        """
-        if self.mtn is not None and self.power_topic != '':
-            sp = [(x.timeInterval.name, x.value) for x in self.scheduledPowers]
-            self.mtn.vip.pubsub.publish(peer='pubsub',
-                                        topic=self.power_topic,
-                                        message={'power': sp})
-        """
 
         self.schedule_engagement(market)  # only applied to LocalAsset class
 
@@ -885,8 +875,9 @@ class LocalAsset(object):
         self.totalDualCost = sum([x.value for x in self.dualCosts])
 
     def getDict(self):
-        scheduled_powers = [(utils.format_timestamp(x.timeInterval.startTime), x.value) for x in self.scheduledPowers]
-        vertices = [(utils.format_timestamp(x.timeInterval.startTime), x.value.marginalPrice, x.value.power) for x in self.activeVertices]
+        scheduled_powers = [(format_timestamp(x.timeInterval.startTime), x.value) for x in self.scheduledPowers]
+        vertices = [(format_timestamp(x.timeInterval.startTime), x.value.marginalPrice, x.value.power)
+                    for x in self.activeVertices]
         local_asset_dict = {
             "name": self.name,
             "scheduled_power": scheduled_powers,

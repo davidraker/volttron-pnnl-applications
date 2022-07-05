@@ -48,24 +48,22 @@ import logging
 import json
 import weakref
 
-from .data_manager import *
-from .helpers import *
-from .measurement_type import MeasurementType
-from .interval_value import IntervalValue
-from .transactive_record import TransactiveRecord
-from .vertex import Vertex
-from .timer import Timer
-from .direction import Direction
 from copy import copy, deepcopy
 from operator import attrgetter
+
+from .data_manager import *
+from .direction import Direction
+from .helpers import *
+from .interval_value import IntervalValue
 from .market_state import MarketState
+from .measurement_type import MeasurementType
 from .meter_point import MeterPoint
+from .timer import Timer
+from .transactive_record import TransactiveRecord
+from .utils.log import setup_logging
+from .vertex import Vertex
 
-from volttron.platform.agent import utils
-from volttron.platform.messaging import topics, headers as headers_mod
-from volttron.platform.agent.utils import (get_aware_utc_now, format_timestamp)
-
-utils.setup_logging()
+setup_logging()
 _log = logging.getLogger(__name__)
 
 # 191217DJH: This class had originally inherited from class Model. Model will be deleted.
@@ -123,7 +121,7 @@ class Neighbor(object):
         self.transactive = validate_bool(transactive, 'transactive')  # [boolean]: True for transactive neighbor
         if isinstance(up_or_down, Direction):  # 'upstream' or 'downstream' direction of this neighbor
             self.upOrDown = up_or_down
-        elif isinstance(int):
+        elif isinstance(up_or_down, int):
             self.upOrDown = Direction(up_or_down)
         else:
             self.upOrDown = Direction[up_or_down]
@@ -161,8 +159,6 @@ class Neighbor(object):
         self.sentSignal = []                                # [TransactiveRecord] Last records sent
         self.totalDualCost = 0.0                            # [float] [$]
         self.totalProductionCost = 0.0                      # [float] [$]
-        # SN: Added to integrate new state machine logic with VOLTTRON
-        self.publishTopic = None
         self.receivedCurves = None
 
     def calculate_reserve_margin(self, market):
@@ -559,9 +555,13 @@ class Neighbor(object):
             # Update the demand threshold.
             # TODO: This appears to be reading the wrong variable name (it is current_measurement)
             # TODO: This could be done with PushMeter by statistics.mean(get_values(since=...)),
-            #  possibly w/ check for of values since then.
-            self.demandThreshold = max([0, self.demandThreshold, mtr.currentMeasurement])  # [avg.kW]
-            #_log.debug("Meter: {} measurement: {} threshold: {}".format(mtr.name,
+            #  possibly w/ check for of values since then.  2022-03-28: Replaced currentMeasurement w/ mean_measurement.
+            #  Is this correct? mean_measurement is the mean of values over the last mtr.measurementInterval (setting).
+            #  This may not be correct, since this block also assumes the meter is of type AverageDeamndkW....
+            #  May instead need to be mtr.lastUpdate?
+            self.demandThreshold = max([0, self.demandThreshold, mtr.mean_measurement])  # [avg.kW]
+            # self.demandThreshold = max([0, self.demandThreshold, mtr.currentMeasurement])  # [avg.kW]before 2022-03-28
+            # _log.debug("Meter: {} measurement: {} threshold: {}".format(mtr.name,
             #                                                            mtr.current_measurement,
             #                                                            self.demandThreshold))
 
@@ -1066,7 +1066,8 @@ class Neighbor(object):
                                         'vertex_record': received_vertices[k].record,
                                         'demand_charge_threshold': demand_charge_threshold
                                     }
-                                    self.this_transactive_node.vip.pubsub.publish(peer='pubsub',
+                                    # If this is uncommented, publication should be handled in a subclass!
+                                    self.publish_system_loss_topic(peer='pubsub',
                                                                 topic=self.system_loss_topic,
                                                                 message=msg)
                                 '''
@@ -1097,7 +1098,8 @@ class Neighbor(object):
                                         'predicted_power_peak': predicted_prior_peak,
                                         'max_predicted_power': power
                                     }
-                                    self.this_transactive_node.vip.pubsub.publish(peer='pubsub',
+                                    # If this is uncommented, publication should be handled in a subclass!
+                                    self.publish_demand_charges(peer='pubsub',
                                                                 topic=self.dc_threshold_topic,
                                                                 message=dc_msg)
                                 '''
@@ -1406,7 +1408,7 @@ class Neighbor(object):
         self.mySignal = [x for x in self.mySignal
                                             if x.timeInterval in valid_time_interval_names]
 
-    def send_transactive_signal(self, market, this_transactive_node, topic, start_of_cycle=False, fail_to_converged=False):
+    def send_transactive_signal(self, market, this_transactive_node, topic):
         # Send transactive records to a transactive neighbor.
         #
         # Retrieves the current transactive records, formats them into a table, and "sends" them to a text file for the
@@ -1422,6 +1424,7 @@ class Neighbor(object):
         # 191212DJH: This appears to bypass most of my original code and dumps transactive records into some sort of
         # message that is probably meaningful to Volttron. This may work for a Volttron environment, but agents cannot
         # all be presumed to be run on Volttron platforms.
+        # 220111DMR: The message publishing has been moved to a subclass. Does this still bypass the original code?
 
         # If neighbor is non-transactive, warn and return. Non-transactive neighbors do not communicate transactive
         # signals.
@@ -1445,28 +1448,6 @@ class Neighbor(object):
             transactive_record.neighborName = self.name
             transactive_record.marketName = market.name
 
-        msg = json.dumps(transactive_records, default=json_econder)
-        msg = json.loads(msg)
-
-        #_log.debug("At {}, {} sends signal from {} on topic {} message {}"
-        #           .format(Timer.get_cur_time(),
-        #                   self.name,
-        #                   self.location, topic, msg))
-        if topic:
-            this_transactive_node.vip.pubsub.publish(peer='pubsub',
-                                                 topic=topic,
-                                                 message={'source': self.location,
-                                                          'curves': msg,
-                                                          'start_of_cycle': start_of_cycle,
-                                                          'fail_to_converged': fail_to_converged,
-                                                          'tnt_market_name': market.name})
-
-        topic = this_transactive_node.transactive_record_topic
-
-        headers = {headers_mod.DATE: format_timestamp(Timer.get_cur_time())}
-        this_transactive_node.vip.pubsub.publish(peer='pubsub', topic=topic,
-                                                     headers=headers, message=msg)
-
         # Save the sent TransactiveRecord messages (i.e., sentSignal) as a copy of the calculated set that was drawn
         # upon by this method (i.e., mySignal).
         self.sentSignal.extend(transactive_records)
@@ -1483,6 +1464,15 @@ class Neighbor(object):
         active_time_interval_names = [x.name for x in active_time_intervals]
         self.sentSignal = [x for x in self.sentSignal if x.timeInterval in active_time_interval_names]
 
+        # Return transactive records to allow further processing by subclasses.
+        return transactive_records
+
+    def publish_signal(self, transactive_records):
+        """
+        Subclasses which implement messaging should extend this method to send the signals.
+        """
+        pass
+
     def receive_transactive_signal(self, this_transactive_node, market, curves=None):
         # Receive and save transactive records from a transactive Neighbor.
         # this_transactive_node = Agent's TransactiveNode object
@@ -1498,7 +1488,7 @@ class Neighbor(object):
             return
 
         if curves is None:
-            _log.warning(f'{market.name} Received Transactive signal is None. {this_transactive_node.name}')
+            _log.warning(f'{market.name}  Received Transactive signal is None. {this_transactive_node.name}')
             return
 
         # 201013DJH: The neighbor's list of received transactive records must be reinitialized so that it will not grow
@@ -1889,7 +1879,7 @@ class Neighbor(object):
         return vertices
 
     def getDict(self):
-        scheduled_powers = [(utils.format_timestamp(x.timeInterval.startTime), x.value) for x in self.scheduledPowers]
+        scheduled_powers = [(format_timestamp(x.timeInterval.startTime), x.value) for x in self.scheduledPowers]
         received_signal = [(x.timeInterval, x.marginalPrice, x.power) for x in self.receivedSignal]
         sent_signal = [(x.timeInterval, x.marginalPrice, x.power) for x in self.sentSignal]
 

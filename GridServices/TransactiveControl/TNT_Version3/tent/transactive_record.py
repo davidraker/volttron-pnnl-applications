@@ -47,10 +47,11 @@ from datetime import datetime
 from .time_interval import TimeInterval
 from .helpers import format_ts
 from .timer import Timer
+from .utils.log import setup_logging
 
-from volttron.platform.agent import utils
-utils.setup_logging()
+setup_logging()
 _log = logging.getLogger(__name__)
+
 
 class TransactiveRecord(object):
     def __init__(self,

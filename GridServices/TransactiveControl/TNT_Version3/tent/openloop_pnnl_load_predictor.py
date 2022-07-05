@@ -43,11 +43,8 @@ under Contract DE-AC05-76RL01830
 
 
 from datetime import datetime, timedelta, date, time
-from volttron.platform.agent import utils
 
 import logging
-utils.setup_logging()
-_log = logging.getLogger(__name__)
 
 from .helpers import *
 from .measurement_type import MeasurementType
@@ -57,6 +54,11 @@ from .time_interval import TimeInterval
 from .local_asset_model import LocalAsset
 from .temperature_forecast_model import TemperatureForecastModel
 from .market_state import MarketState
+from .utils.log import setup_logging
+
+setup_logging()
+_log = logging.getLogger(__name__)
+
 
 class OpenLoopPnnlLoadPredictor(LocalAsset, object):
     """

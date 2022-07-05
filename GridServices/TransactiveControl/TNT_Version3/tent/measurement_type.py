@@ -87,6 +87,8 @@ class MeasurementType(Enum):
     PredictedValue = 34
     Unknown = 40
 
+    # TODO: Deprecated method. If it is not necessary to have data_manager.append_interval_value_table():112 get an
+    #  underscore delimited version, this functionality is already provided by Enum as obj.measurementType.name.
     @classmethod
     def get(cls, number=40):
         lookup = {1: 'Voltage',

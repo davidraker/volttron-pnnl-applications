@@ -47,55 +47,82 @@ under Contract DE-AC05-76RL01830
 # measurement location within the circuit. Therefore, a single physical
 # meter might be the source of more than one MeterPoint.
 
-from datetime import datetime, date, timedelta
+import weakref
+
+from datetime import timedelta
+from math import ceil
+from statistics import mean
+from typing import Union
 
 from .measurement_type import MeasurementType
 from .measurement_unit import MeasurementUnit
+from .timer import Timer
+from .utils.time_series_buffer import TimeSeriesBuffer
 from .helpers import format_ts, format_date
 
 
-class MeterPoint(object):
+class MeterPoint(TimeSeriesBuffer):
     def __init__(self,
-                 description='',
-                 measurement_interval=timedelta(hours=1),
-                 measurement_type=MeasurementType.Unknown,
-                 measurement_unit=MeasurementUnit.Unknown,
-                 name=''
+                 data_period_seconds: float = 10,
+                 description: str = '',
+                 max_buffer_seconds: float = 3600,
+                 # TODO: Is measurement_interval intended as the market interval or the polling period?
+                 #  2022-03-28: Assuming that this is set to the interval to be considered by the
+                 #  mean_measurements function (i.e used for DC interval in neighbor_model). Is this correct?
+                 measurement_interval: Union[timedelta, int] = timedelta(hours=1),
+                 measurement_type: Union[MeasurementType, str, int] = MeasurementType.Unknown,
+                 measurement_unit: Union[MeasurementUnit, str, int] = MeasurementUnit.Unknown,
+                 name: str = '',
+                 scale_factor: float = 1.0,
+                 transactive_node=None
                  ):
+        max_len = ceil(max_buffer_seconds / data_period_seconds) + 1
+        super(MeterPoint, self).__init__(maxlen=max_len, dt_class=Timer)  # TODO: Should this pass dt_class=Timer?
+        self.tn = weakref.ref(transactive_node) if transactive_node else None
+
         # These are static properties that may be passed as parameters:
-        self.description = description
-        self.measurementInterval = measurement_interval
-        self.measurementType = measurement_type
-        self.measurementUnit = measurement_unit
-        self.name = name
+        self.description = str(description)
+        self.measurementInterval = measurement_interval if isinstance(measurement_interval, timedelta)\
+            else timedelta(seconds=measurement_interval)
+
+        if isinstance(measurement_type, MeasurementType):
+            self.measurementType = measurement_type
+        elif isinstance(measurement_type, int):
+            self.measurementType = MeasurementType(measurement_type)
+        else:
+            self.measurementType = MeasurementType[measurement_type]
+
+        if isinstance(measurement_unit, MeasurementUnit):
+            self.measurementUnit = measurement_unit
+        elif isinstance(measurement_unit, int):
+            self.measurementUnit = MeasurementUnit(measurement_unit)
+        else:
+            self.measurementUnit = MeasurementUnit[measurement_unit]
+        self.name = str(name)
+        self.scale_factor = float(scale_factor)  # Use -1 to reverse the sign of the meter.
 
         # These following properties are dynamically assigned and should not be assigned during meter configuration:
-        self.current_hour_measurements = []
-        self.filtered_measurement = None  # Average or some other aggregate metric
-        self.current_measurement = None  # Last actual value.
-        self.lastUpdate = None
+        # TODO: Replace with TimeSeriesBuffer functionality.
 
-    # TODO: Consider how/whether this use of datetime.utcnow() affects simulations.
-    def set_meter_value(self, value, last_update=datetime.utcnow()):
-        self.current_hour_measurements.append(value)
-        self.lastUpdate = last_update
+    @property
+    def current_interval_measurements(self) -> list:
+        """Last hour of measurements."""
+        return self.get(since=(self.dt_class.now() - self.measurementInterval))
 
-    def filter_measurements(self):
-        # TODO: Make this interval agnostic. Maybe put pass in base class.
-        if len(self.current_hour_measurements) > 30:
-            self.filtered_measurement = sum(self.current_hour_measurements) / len(self.current_hour_measurements)
-            self.current_hour_measurements = []
-        return self.filtered_measurement
+    @property
+    def mean_measurement(self):
+        """Average or some other aggregate metric."""
+        return mean(self.current_interval_measurements)
 
-    def read_meter(self, obj):
-        # Read the meter point at scheduled intervals
-        #
-        # MeterPoints are updated on a schedule. Properties have been defined to keep track of the time of the last
-        # update and the interval between updates.
-        #
-        # While this seems easy, meters will be found to be diverse and may use diverse standards and protocols. Create
-        # subclasses and redefine this function as needed to handle unique conditions.
-        print('Made it to MeterPoint.read_meter() for ' + obj.name)
+    @property
+    def lastUpdate(self):
+        """Most recent measurement."""
+        return self.last
+
+    def set_meter_value(self, value, last_update=None):
+        last_update = last_update if last_update else Timer.get_cur_time()
+        self.append(self.scale_factor * value, last_update)
+        self.last = last_update
 
     def store(self):
         """
@@ -113,6 +140,22 @@ class MeterPoint(object):
             "measurementType": self.measurementType,
             "measurementUnit": self.measurementUnit,
             "meter_point_name": self.name,
-            "lastUpdates": self.lastUpdate
+            "lastUpdate": self.lastUpdate
         }
         return meter_point_dict
+
+    @classmethod
+    def get_meters_by_name(cls, meter_list, name):
+        return [m for m in meter_list if m.name == name and isinstance(m, cls)]
+
+    @classmethod
+    def get_meter_by_name(cls, meter_list, name):
+        return MeterPoint.get_meters_by_name(meter_list, name)[0]
+
+    @classmethod
+    def get_meters_by_measurement_type(cls, meter_list, measurement_type):
+        return [m for m in meter_list if m.measurement_type == measurement_type and isinstance(m, cls)]
+
+    @classmethod
+    def get_meter_by_measurement_type(cls, meter_list, measurement_type):
+        return MeterPoint.get_meters_by_measurement_type(meter_list, measurement_type)[0]

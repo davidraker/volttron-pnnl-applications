@@ -41,51 +41,51 @@ operated by BATTELLE for the UNITED STATES DEPARTMENT OF ENERGY
 under Contract DE-AC05-76RL01830
 """
 
+# TODO: Revisit the simulation features of class Timer that may have been lost by directly using datetime methods.
 
-class TransactiveNode(object):
-    """
-    TransactiveNode is the local perspective of the computational agent among a network of such nodes.
-    """
+from datetime import datetime
 
-    def __init__(self, description='', mechanism='consensus', name='', status='unknown'):
 
-        super(TransactiveNode, self).__init__()
+class Timer(object):
+    created_time = None
+    sim_one_hr_in_sec = 1200
+    sim_start_time = None
+    simulation = False
 
-        self.description = description                          # [text]
-        self.mechanism = mechanism                              # future, unused in Version 2
-        self.name = name                                        # [text]
-        self.status = status                                    # future: will be enumeration
+    @classmethod
+    def get_cur_time(cls):
+        """
+        Calculate current time based on the amount of time has passed since this object is created
+        :return:
+        """
+        cur_time = datetime.now()
+        if cls.simulation:
+            ratio = 3600 / cls.sim_one_hr_in_sec
+            time_diff = cur_time - cls.created_time
+            simulation_time_diff = time_diff * ratio
+            cur_time = cls.sim_start_time + simulation_time_diff
 
-        # The agent must keep track of various devices and their models that are listed among these properties.
-        self.informationServiceModels = []
-        self.localAssets = []
-        self.markets = []
-        self.meterPoints = []
-        self.neighbors = []
+        return cur_time
 
-    def get_meter_points_by_name(self, meter_points):
-        meter_point_list = []
-        available_mps = [mp.name for mp in self.meterPoints]
-        for mp in meter_points:
-            if mp not in available_mps:
-                raise ValueError(f'Meter point {mp} is not available.')
-            else:
-                meter_point_list.append(self.meterPoints[available_mps.index(mp)])
-        return meter_point_list
-
-    def get_information_services_by_name(self, information_services):
-        ism_list = []
-        available_isms = [ism.name for ism in self.informationServiceModels]
-        for ism in information_services:
-            if ism not in available_isms:
-                raise ValueError(f'Information Service {ism} is not available.')
-            else:
-                ism_list.append(self.informationServiceModels[available_isms.index(ism)])
-        return ism_list
-
-    def get_market_by_name(self, market_name):
-        available_markets = [mkt.name for mkt in self.markets]
-        if market_name not in available_markets:
-            raise ValueError(f'Market {market_name} is not available.')
+    @classmethod
+    def now(cls, tzinfo=None):
+        if tzinfo:
+            return tzinfo.localize(cls.get_cur_time())
         else:
-            return self.markets[available_markets.index(market_name)]
+            return cls.get_cur_time()
+
+
+if __name__ == '__main__':
+    from dateutil import parser
+
+    Timer.simulation = True
+    Timer.created_time = parser.parse("2018-07-18 16:01:00.000")
+
+    Timer.sim_start_time = parser.parse("2018-06-22 00:00:00.000")
+    print(Timer.get_cur_time())
+
+    Timer.sim_start_time = parser.parse("2018-07-22 00:00:00.000")
+    print(Timer.get_cur_time())
+
+    Timer.simulation = False
+    print(Timer.get_cur_time())

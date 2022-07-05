@@ -49,11 +49,11 @@ from .method import Method
 
 class ConsensusMarket(Market):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, market_series_name='Consensus_Market_Series', *args, **kwargs):
         super(ConsensusMarket, self).__init__(
-            market_series_name='Consensus_Market_Series',
+            market_series_name=market_series_name,
             market_type=MarketTypes.consensus,
-            method=2,
+            method='Interpolation',
             *args, **kwargs
         )
 
