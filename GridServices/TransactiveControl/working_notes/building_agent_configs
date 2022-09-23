@@ -1,0 +1,68 @@
+MAIN
+self.config_path = config_path
+self.config = utils.load_config(config_path)
+self.name = self.config.get('name')
+self.db_topic = self.config.get("db_topic", "tnc")
+self.neighbors = []
+self.campus = None
+self.simulation = self.config.get('simulation', False)
+try:
+    self.simulation_start_time = parser.parse(self.config.get('simulation_start_time'))
+    self.simulation_one_hour_in_seconds = int(self.config.get('simulation_one_hour_in_seconds'))
+except:
+    self.simulation_start_time = Timer.get_cur_time()
+    self.simulation_one_hour_in_seconds = 3600
+Timer.created_time = Timer.get_cur_time()
+Timer.simulation = self.simulation
+Timer.sim_start_time = self.simulation_start_time
+Timer.sim_one_hr_in_sec = self.simulation_one_hour_in_seconds
+self._stop_agent = False
+    
+METERS
+self.power_topic = self.config.get("power_topic")
+
+LOCAL ASSETS
+self.agent_name = self.config.get('agentid', 'building_agent') --> only used in debug statements
+self.mix_market_running = False  --> Not a config, but used internally by LA.
+self.prices = [None for i in range(24)]  --> Not a config, used internally by LA.
+self.quantities = [None for i in range(24)]  --> Not a config, used internally by LA.
+self.building_demand_curves = [None for i in range(24)] --> Not a config, used internally by LA.
+self.mix_market_duration = timedelta(minutes=20) --> Not a setting, but probably should be.
+self.base_market_name = 'electric'   --> Not a setting, but probably should be.
+self.market_names = []  --> Not a setting, used internally by LA.
+for i in range(24):
+    self.market_names.append('_'.join([self.base_market_name, str(i)]))
+if self.simulation:
+    self.ep_lines = []
+    self.cur_ep_line = 0
+self.elastic_load = None  --> Not a setting, contains TCC model.
+self._mix_market_done = [False]*24  --> Not used.
+self._building_market_prices = [None]*24  --> Not a setting, used internally by LA.
+self.cleared_price_topic = 'tnc/cleared_prices'  --> Not a setting, but probably should be.
+self.tnt_real_time_market = None --> Not a config, holds TNS market for LA.
+self.real_time_building_demand_curve = [None for i in range(2)]  --> Not a setting, used internally in LA.
+self.real_time_market_name = 'refinement_electric'  --> Not a setting, but probably should be.
+self.real_time_price = [None for i in range(2)]  --> Not a setting, used internally in LA.
+self.real_time_mix_market_running = False  --> Not a setting, used internally in LA.
+self.real_time_quantity = [None for i in range(2)]  --> Not a setting, used internally in LA.
+self.current_day_ahead_market_name = None  --> Not a setting, used internally in LA.
+self.day_ahead_mixmarket_running = False  --> Not a setting, used internally in LA.
+self.day_ahead_clear_price_sent = False --> Not a setting, used internally in LA.
+self.real_time_clear_price_sent = False  --> Not a setting, used internally in LA.
+
+NEIGHBORS
+self.campus_loss_factor = float(self.config.get('campus_loss_factor', 0.01)) 
+self.max_deliver_capacity = float(self.config.get('max_deliver_capacity'))   --> Campus.maximumPower
+self.demandThresholdCoef = float(self.config.get('demand_threshold_coef'))  --> default 1.
+self.monthly_peak_power = float(self.config.get('monthly_peak_power'))  --> Campus.demandThreshold
+self.building_demand_topic = "{}/{}/campus/demand".format(self.db_topic, self.name) --> Campus publishTopic (outgoing to campus from campus neighbor obj)
+self.campus_supply_topic = "{}/campus/{}/supply".format(self.db_topic, self.name)  --> Incoming publish from campus.
+
+
+MARKETS
+self.duality_gap_threshold = float(self.config.get('duality_gap_threshold', 0.01))
+
+self.transactive_operation_topic = "{}/{}/transactive_operation".format(self.db_topic, self.name)
+self.local_asset_topic = "{}/{}/local_assets".format(self.db_topic, self.name)
+self.market_balanced_price_topic = "{}/{}/market_balanced_prices".format(self.db_topic, self.name)
+

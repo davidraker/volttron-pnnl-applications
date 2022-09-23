@@ -1,0 +1,42 @@
+{
+  "campus": "Main",
+  "building": "R2",
+  "analysis_prefix_topic": "record/ILC_R2",
+  "power_meter": {
+    "device_topic": "Main/R2/AHU/SupplyAirFanVFD",
+    "device_name": "SupplyAirFanVFD",
+    "point": "Power",
+    "demand_formula": {
+      "operation": "Abs(Power)",
+      "operation_args": ["Power"]
+    }
+  },
+  "control_mode": "comfort",
+  "agent_id": "ILC.R2",
+  "demand_limit": "target",
+  "demand_threshold": 0,
+  "control_time": 15,
+  "curtailment_break": 10,
+  "average_building_power_window": 15,
+  "stagger_release": true,
+  "stagger_off_time": true,
+  "clusters": [
+    {
+      "cluster_name": "VAV_Electric_Reheat",
+      "cluster_type": "AHU",
+      "cluster_priority": 0.5,
+      "device_control_config": "config://VAV_Electric_Reheat_control_config",
+      "device_criteria_config": "config://VAV_Electric_Reheat_criteria_config",
+      "pairwise_criteria_config": "config://VAV_Electric_Reheat_pairwise_criteria_config"
+    },
+    {
+      "cluster_name": "VAV_Water_Reheat",
+      "cluster_type": "AHU",
+      "cluster_priority": 0.5,
+      "device_control_config": "config://VAV_Water_Reheat_control_config",
+      "device_criteria_config": "config://VAV_Water_Reheat_criteria_config",
+      "pairwise_criteria_config": "config://VAV_Water_Reheat_pairwise_criteria_config"
+    }
+  ],
+  "curtailment_confirm": 1
+}

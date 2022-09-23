@@ -57,21 +57,21 @@ from volttron.platform.agent import utils
 from volttron.platform.agent.utils import (get_aware_utc_now, format_timestamp)
 
 
-from TNT_Version3.PyCode.helpers import *
-from TNT_Version3.PyCode.measurement_type import MeasurementType
-from TNT_Version3.PyCode.measurement_unit import MeasurementUnit
-from TNT_Version3.PyCode.meter_point import MeterPoint
+from ...TNT_Version3.tent.helpers import *
+from ...TNT_Version3.tent.measurement_type import MeasurementType
+from ...TNT_Version3.tent.measurement_unit import MeasurementUnit
+from ...TNT_Version3.tent.meter_point import MeterPoint
 
-from TNT_Version3.PyCode.market_state import MarketState
-from TNT_Version3.PyCode.neighbor_model import Neighbor
-from TNT_Version3.PyCode.TransactiveNode import TransactiveNode
-from TNT_Version3.PyCode.temperature_forecast_model import TemperatureForecastModel
-from TNT_Version3.PyCode.solar_pv_resource_model import SolarPvResource
-from TNT_Version3.PyCode.openloop_pnnl_load_predictor import OpenLoopPnnlLoadPredictor
-from TNT_Version3.PyCode.vertex import Vertex
-from TNT_Version3.PyCode.timer import Timer
-from TNT_Version3.PyCode.day_ahead_auction import DayAheadAuction
-from TNT_Version3.PyCode.direction import Direction
+from ...TNT_Version3.tent.market_state import MarketState
+from ...TNT_Version3.tent.neighbor_model import Neighbor
+from ...TNT_Version3.tent.TransactiveNode import TransactiveNode
+from ...TNT_Version3.tent.temperature_forecast_model import TemperatureForecastModel
+from ...TNT_Version3.tent.solar_pv_resource_model import SolarPvResource
+from ...TNT_Version3.tent.openloop_pnnl_load_predictor import OpenLoopPnnlLoadPredictor
+from ...TNT_Version3.tent.vertex import Vertex
+from ...TNT_Version3.tent.timer import Timer
+from ...TNT_Version3.tent.day_ahead_auction import DayAheadAuction
+from ...TNT_Version3.tent.direction import Direction
 
 utils.setup_logging()
 _log = logging.getLogger(__name__)

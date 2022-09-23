@@ -1,0 +1,107 @@
+{
+  "AHU/VAV-25": {
+    "CoolingVAV": {
+      "device_topic": "Main/R2/AHU/VAV-25",
+      "device_status": {
+        "curtail": {
+          "condition": "Eq(HeatingCoolingMode,0) & ( ZoneAirFlow > MinimumZoneAirFlow )",
+          "device_status_args": [
+            "HeatingCoolingMode",
+            "ZoneAirFlow",
+            "MinimumZoneAirFlow"
+          ]
+        },
+        "augment": {
+          "condition": "Eq(HeatingCoolingMode,0) & ( ZoneAirFlow < MaximumZoneAirFlow )",
+          "device_status_args": [
+            "HeatingCoolingMode",
+            "ZoneAirFlow",
+            "MaximumZoneAirFlow"
+          ]
+        }
+      },
+      "curtail_settings": {
+        "point": "ZoneTemperatureSetPoint",
+        "load": 0,
+        "control_method": "offset",
+        "offset": 2
+      },
+      "augment_settings": {
+        "point": "ZoneTemperatureSetPoint",
+        "load": 0,
+        "control_method": "offset",
+        "offset": -2
+      }
+    }
+  },
+  "AHU/VAV-26": {
+    "CoolingVAV": {
+      "device_topic": "Main/R2/AHU/VAV-26",
+      "device_status": {
+        "curtail": {
+          "condition": "Eq(HeatingCoolingMode,0) & ( ZoneAirFlow > MinimumZoneAirFlow )",
+          "device_status_args": [
+            "HeatingCoolingMode",
+            "ZoneAirFlow",
+            "MinimumZoneAirFlow"
+          ]
+        },
+        "augment": {
+          "condition": "Eq(HeatingCoolingMode,0) & ( ZoneAirFlow < MaximumZoneAirFlow )",
+          "device_status_args": [
+            "HeatingCoolingMode",
+            "ZoneAirFlow",
+            "MaximumZoneAirFlow"
+          ]
+        }
+      },
+      "curtail_settings": {
+        "point": "ZoneTemperatureSetPoint",
+        "load": 0,
+        "control_method": "offset",
+        "offset": 2
+      },
+      "augment_settings": {
+        "point": "ZoneTemperatureSetPoint",
+        "load": 0,
+        "control_method": "offset",
+        "offset": -2
+      }
+    }
+  },
+  "AHU/VAV-24": {
+    "CoolingVAV": {
+      "device_topic": "Main/R2/AHU/VAV-24",
+      "device_status": {
+        "curtail": {
+          "condition": "Eq(HeatingCoolingMode,0) & ( ZoneAirFlow > MinimumZoneAirFlow )",
+          "device_status_args": [
+            "HeatingCoolingMode",
+            "ZoneAirFlow",
+            "MinimumZoneAirFlow"
+          ]
+        },
+        "augment": {
+          "condition": "Eq(HeatingCoolingMode,0) & ( ZoneAirFlow < MaximumZoneAirFlow )",
+          "device_status_args": [
+            "HeatingCoolingMode",
+            "ZoneAirFlow",
+            "MaximumZoneAirFlow"
+          ]
+        }
+      },
+      "curtail_settings": {
+        "point": "ZoneTemperatureSetPoint",
+        "load": 0,
+        "control_method": "offset",
+        "offset": 2
+      },
+      "augment_settings": {
+        "point": "ZoneTemperatureSetPoint",
+        "load": 0,
+        "control_method": "offset",
+        "offset": -2
+      }
+    }
+  }
+}

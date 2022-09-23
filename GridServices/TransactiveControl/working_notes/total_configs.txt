@@ -1,0 +1,136 @@
+MAIN
+
+self.name = self.config.get('name')
+self.db_topic = self.config.get("db_topic", "tnc")
+self._stop_agent = False
+self.upstairs_neighbor
+
+self.simulation = self.config.get('simulation', False)
+try:
+    self.simulation_start_time = parser.parse(self.config.get('simulation_start_time'))
+    self.simulation_one_hour_in_seconds = int(self.config.get('simulation_one_hour_in_seconds'))
+except:
+    self.simulation_start_time = Timer.get_cur_time()
+    self.simulation_one_hour_in_seconds = 3600
+
+# After configuration loaded:
+Timer.created_time = Timer.get_cur_time()
+Timer.simulation = self.simulation
+Timer.sim_start_time = self.simulation_start_time
+Timer.sim_one_hr_in_sec = self.simulation_one_hour_in_seconds
+
+
+METERS
+self.power_topic = self.config.get("power_topic")
+
+
+NEIGHBORS -- from Neighbor class
+self.convergenceThreshold = convergence_threshold   
+self.costParameters = cost_parameters               
+self.demandMonth = demand_month                     
+self.demandRate = demand_rate                       
+self.demandThreshold = demand_threshold             
+self.demandThresholdCoef = demand_threshold_coef    
+self.description = description                      
+self.effectiveImpedance = effective_impedance       
+self.friend = friend                                
+self.location = location                            
+self.lossFactor = loss_factor                       
+self.maximumPower = maximum_power                   
+self.mechanism = mechanism                          
+self.minimumPower = minimum_power                   
+self.name = name                                    
+self.subclass = subclass                            
+self.transactive = transactive                      
+self.upOrDown = up_or_down
+
+Topic, not in class, but only used by neighbor model:
+self.transactive_record_topic = "{}/{}/transactive_record".format(self.db_topic, self.name)
+Need to figure out how to integrate incoming subscription topics.             
+
+
+MARKETS -- from Market class
+activation_lead_time=timedelta(hours=0),
+commitment=False,
+default_price=0.05,
+delivery_lead_time=timedelta(hours=0),
+duality_gap_threshold=0.01,
+future_horizon=timedelta(hours=24),
+initial_market_state=MarketState.Inactive,
+interval_duration=timedelta(hours=1),
+intervals_to_clear=1,
+market_clearing_interval=timedelta(hours=1),
+market_clearing_time=None,
+market_lead_time=timedelta(hours=0),
+market_order=1,
+market_series_name='Market Series',
+market_to_be_refined=None,
+market_type=MarketTypes.unknown,
+method=Method.Interpolation,
+name='',
+next_market_clearing_time=None,
+negotiation_lead_time=timedelta(hours=0),
+prior_market_in_series=None,
+real_time_duration=15)
+
+self.real_time_duration = self.config.get('real_time_market_duration', 15)  --> attached to market, but doesn't appear to be used?
+
+Topics, which are not in class, but appear to be market-related:
+self.transactive_operation_topic = "{}/{}/transactive_operation".format(self.db_topic, self.name)
+self.local_asset_topic = "{}/{}/local_assets".format(self.db_topic, self.name)
+self.market_balanced_price_topic = "{}/{}/market_balanced_prices".format(self.db_topic, self.name)
+
+
+LOCAL ASSETS
+From LocalAssetModel class:
+cost_parameters=(0.0, 0.0, 0.0),
+default_power=0.0,
+description='',
+engagement_cost=(0.0, 0.0, 0.0),
+location='',
+maximum_power=0.0,
+minimum_power=0.0,
+name='',
+# 200520DJH - The following Boolean property is added to give complex assets like TCC time to schedule
+# their powers.
+schedule_calculated=False,
+scheduling_horizon=timedelta(hours=24),
+subclass=None):
+
+LOCAL ASSETS -- buiding agent
+self.agent_name = self.config.get('agentid', 'building_agent')
+self.mix_market_running = False
+self.prices = [None for i in range(24)]
+self.quantities = [None for i in range(24)]
+self.building_demand_curves = [None for i in range(24)]
+self.mix_market_duration = timedelta(minutes=20)
+self.base_market_name = 'electric'
+self.market_names = []
+for i in range(24):
+    self.market_names.append('_'.join([self.base_market_name, str(i)]))
+if self.simulation:
+    self.ep_lines = []
+    self.cur_ep_line = 0
+self.elastic_load = None
+self._mix_market_done = [False]*24
+self._building_market_prices = [None]*24
+self.cleared_price_topic = 'tnc/cleared_prices'
+self.tnt_real_time_market = None 
+self.real_time_building_demand_curve = [None for i in range(2)]
+self.real_time_market_name = 'refinement_electric'
+self.real_time_price = [None for i in range(2)]
+self.real_time_mix_market_running = False
+self.real_time_quantity = [None for i in range(2)]
+self.current_day_ahead_market_name = None
+self.day_ahead_mixmarket_running = False
+self.day_ahead_clear_price_sent = False 
+self.real_time_clear_price_sent = False
+
+INFORMATION SERVICE MODELS
+self.weather_file = self.weather_config.get("weather_file")
+self.weather_vip = self.weather_config.get("weather_vip", "platform.weather_service")
+self.remote_platform = self.weather_config.get("remote_platform")
+self.location = [self.weather_config.get("location")]
+self.oat_point_name = self.config.get("temperature_point_name", "OutdoorAirTemperature")
+
+

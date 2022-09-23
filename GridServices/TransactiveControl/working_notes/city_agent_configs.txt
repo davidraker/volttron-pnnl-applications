@@ -1,0 +1,33 @@
+MAIN
+self.config_path = config_path
+self.config = utils.load_config(config_path)
+self.name = self.config.get('name')
+self.db_topic = self.config.get("db_topic", "tnc")
+self.simulation = self.config.get('simulation', False)
+self.simulation_start_time = parser.parse(self.config.get('simulation_start_time'))
+self.simulation_one_hour_in_seconds = int(self.config.get('simulation_one_hour_in_seconds'))
+Timer.created_time = Timer.get_cur_time()
+Timer.simulation = self.simulation
+Timer.sim_start_time = self.simulation_start_time
+Timer.sim_one_hr_in_sec = self.simulation_one_hour_in_seconds
+self._stop_agent = False
+self.campus = None
+self.transactive_record_topic = "{}/{}/transactive_record".format(self.db_topic, self.name)
+
+NEIGHBORS
+self.supplier_loss_factor = float(self.config.get('supplier_loss_factor'))
+self.demand_threshold_coef = float(self.config.get('demand_threshold_coef'))
+self.monthly_peak_power = float(self.config.get('monthly_peak_power'))
+self.city_supply_topic = "{}/city/campus/supply".format(self.db_topic) --> campus.publishTopic
+self.campus_demand_topic = "{}/campus/city/demand".format(self.db_topic) --> Incoming publish from campus.
+
+
+
+MARKETS
+self.real_time_duration = self.config.get('real_time_market_duration', 15)
+self.duality_gap_threshold = float(self.config.get('duality_gap_threshold', 0.01))
+
+self.transactive_operation_topic = "{}/{}/transactive_operation".format(self.db_topic, self.name)
+self.local_asset_topic = "{}/{}/local_assets".format(self.db_topic, self.name)
+self.market_balanced_price_topic = "{}/{}/market_balanced_prices".format(self.db_topic, self.name)
+

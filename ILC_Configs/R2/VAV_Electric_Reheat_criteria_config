@@ -1,0 +1,1947 @@
+{
+  "mappers": {
+    "zone_type": {
+      "Private Office": 1,
+      "Office": 3,
+      "Conference Room": 1,
+      "Lobby": 9,
+      "RestRoom": 9
+    }
+  },
+  "AHU/VAV-01": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-01",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      },
+      "augment": {
+        "device_topic": "Main/R2/AHU/VAV-01",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      }
+    }
+  },
+  "AHU/VAV-02": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-02",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      }
+    }
+  },
+  "AHU/VAV-03": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-03",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      }
+    }
+  },
+  "AHU/VAV-04": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-04",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      }
+    }
+  },
+  "AHU/VAV-05": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-05",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 7
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 7
+        }
+      }
+    }
+  },
+  "AHU/VAV-06": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-06",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 14.5
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 14.5
+        }
+      }
+    }
+  },
+  "AHU/VAV-07": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-07",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 16
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 16
+        }
+      }
+    }
+  },
+  "AHU/VAV-08": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-08",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 10
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 10
+        }
+      }
+    }
+  },
+  "AHU/VAV-09": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-09",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 3
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 3
+        }
+      }
+    }
+  },
+  "AHU/VAV-10": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-10",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      }
+    }
+  },
+  "AHU/VAV-11": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-11",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      }
+    }
+  },
+  "AHU/VAV-12": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-12",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 11
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 11
+        }
+      }
+    }
+  },
+  "AHU/VAV-13": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-13",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 2
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 2
+        }
+      }
+    }
+  },
+  "AHU/VAV-14": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-14",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 7
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 7
+        }
+      }
+    }
+  },
+  "AHU/VAV-16": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-16",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      }
+    }
+  },
+  "AHU/VAV-17": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-17",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 16
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 16
+        }
+      }
+    }
+  },
+  "AHU/VAV-18": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-18",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 11
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 11
+        }
+      }
+    }
+  },
+  "AHU/VAV-19": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-19",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 13
+        }
+      }
+    }
+  },
+  "AHU/VAV-20": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-20",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 8
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 8
+        }
+      }
+    }
+  },
+  "AHU/VAV-21": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-21",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 9
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 9
+        }
+      }
+    }
+  },
+  "AHU/VAV-22": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-22",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 16
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 16
+        }
+      }
+    }
+  },
+  "AHU/VAV-23": {
+    "CoolingVAV": {
+      "curtail": {
+        "device_topic": "Main/R2/AHU/VAV-23",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 11
+        }
+      },
+      "augment": {
+        "device_topic": "",
+        "zonetemperature_setpoint": {
+          "operation_type": "formula",
+          "operation": "1 / ( ZoneTemperature - ZoneTemperatureSetPoint )",
+          "operation_args": {
+            "always": [
+              "ZoneTemperature",
+              "ZoneTemperatureSetPoint"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 100
+        },
+        "available_zone_airflow_ratio": {
+          "operation_type": "formula",
+          "operation": "( ZoneAirFlow - MinimumZoneAirFlow ) / ( MaximumZoneAirFlow - MinimumZoneAirFlow )",
+          "operation_args": {
+            "always": [
+              "ZoneAirFlow",
+              "MinimumZoneAirFlow",
+              "MaximumZoneAirFlow"
+            ],
+            "nc": []
+          },
+          "minimum": 0,
+          "maximum": 1
+        },
+        "history-zonetemperature": {
+          "operation_type": "history",
+          "previous_time": 15,
+          "comparison_type": "direct",
+          "point_name": "ZoneTemperature",
+          "maximum": 100,
+          "minimum": 0
+        },
+        "rated-power": {
+          "operation_type": "constant",
+          "value": 11
+        }
+      }
+    }
+  }
+}

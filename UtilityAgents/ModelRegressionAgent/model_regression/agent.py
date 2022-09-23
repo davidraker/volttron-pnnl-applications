@@ -61,7 +61,7 @@ from datetime import datetime as dt, timedelta as td
 from dateutil import parser
 
 import json
-from scipy.optimize import lsq_linear
+#from scipy.optimize import lsq_linear
 from volttron.platform.vip.agent import Agent, Core, PubSub, RPC
 from volttron.platform.agent import utils
 from volttron.platform.agent.utils import (get_aware_utc_now, format_timestamp)
